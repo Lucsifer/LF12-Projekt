@@ -4,6 +4,9 @@ Die Server spezifikationen beziehen sich auf 2vCPUs und 4GB Arbeitsspeicher auf 
 
 IP: 46.225.218.94
 
+Pfad für alle Mitglieder: /srv/league-project
+Pfad für Docker Compose-files: /srv/league-project/compose-files
+
 ## Docker installation
 
 (https://docs.docker.com/engine/install/ubuntu/)
@@ -119,4 +122,15 @@ sudo systemctl restart nginx.service
 # "Unload" default config file
 sudo rm /etc/nginx/sites-available/default
 sudo nginx -t # Test is successfull
+```
+
+## Portainer installation
+
+https://docs.portainer.io/start/install-ce/server/docker/linux#docker-compose
+
+Compose dateipfad = /srv/league-project/compose-file/portainer-compose.yaml
+
+```bash
+# Deploy
+docker compose -f portainer-compose.yaml up -d
 ```

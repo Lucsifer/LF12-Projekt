@@ -1,0 +1,9 @@
+inbound
+Service     Port
+TCP         22
+ICMP
+HTTP (temp) 80
+Portainer   9443
+
+
+Main app wird auf 3001 im Container laufen
