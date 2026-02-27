@@ -82,3 +82,60 @@ Das Backend nimmt Anfragen vom Frontend entgegen, kommuniziert mit der Riot‑Ga
 
 ## 5. Produktdaten
 ### 5.1 Eingabedaten
+- Summoner‑Name (Text).
+- Auswahl eines Favoriten aus einer Liste.
+
+### 5.2 Ausgabedaten
+- Summoner‑Profilinformationen (Name, Level, Icon).
+- Ranginformationen (z. B. Solo/Duo, Flex).
+- Statistiken (z. B. Anzahl Spiele, Wins/Losses – je nach API‑Umfang).
+- Fehlermeldungen (Text).
+- Monitoring‑Status (z. B. „online“, „offline“).
+
+### 5.3 Datenquellen
+- Riot‑Games‑API als externe Datenquelle.
+- Lokaler Cache (z. B. Browser‑Storage) für Favoriten und letzten Summoner.
+- Datenbank auf dem Server für persistente Speicherung.
+
+## 6. Nicht-funktionale Anforderungen
+### 6.1 Sicherheit
+- Alle Verbindungen zur Webanwendung erfolgen über HTTPS.
+- Der API‑Key wird ausschließlich serverseitig verwaltet und nicht im Client offengelegt.
+- Die Firewall des Hosting‑Anbieters ist nach dem Prinzip der minimalen Öffnung konfiguriert.
+
+### 6.2 Performance
+- Die Antwortzeit bei einer regulären Summoner‑Abfrage soll im Normalfall unter 2 Sekunden liegen.
+- Durch Caching des zuletzt aufgerufenen Summoners werden unnötige API‑Anfragen vermieden.
+
+### 6.3 Zuverlässigkeit
+- Uptime‑Kuma überwacht die Kernkomponenten und zeigt Ausfälle an.
+- Der Server ist so konfiguriert, dass Dienste bei einem Neustart automatisch wieder gestartet werden.
+
+### 6.4 Usability
+- Die Benutzeroberfläche ist übersichtlich und intuitiv bedienbar.
+- Wichtige Informationen sind klar strukturiert und ohne technische Vorkenntnisse verständlich.
+- Die Anwendung ist auf gängigen Bildschirmgrößen gut nutzbar.
+
+### 6.5 Wartbarkeit
+- Der Quellcode ist strukturiert und kommentiert.
+- Konfigurationen (z. B. API‑Key, Endpoints) sind zentral verwaltet.
+
+## 7. Systemmodelle
+### 7.1 Architekturmodell
+Die Architektur folgt einem klassischen Web‑Anwendungsmodell. Der Nutzer greift mit einem Browser auf die Webanwendung zu. Die Anfrage wird zunächst vom Reverse‑Proxy entgegengenommen, der sie an das Backend weiterleitet. Das Backend kommuniziert mit der Riot‑Games‑API, verarbeitet die Antworten und stellt die Daten dem Frontend zur Verfügung.
+Optional kann eine Datenbank angebunden werden, um Favoriten oder Caching‑Informationen zu speichern. Uptime‑Kuma läuft als separates System bzw. Dienst und überwacht die Erreichbarkeit der relevanten Komponenten.
+
+### 7.2 Ablaufmodell - Summoner-Suche
+1. Nutzer öffnet die Webanwendung im Browser.
+2. Die Anwendung prüft, ob ein zuletzt aufgerufener Summoner im Cache vorhanden ist und zeigt diesen ggf. an.
+3. Nutzer gibt einen Summoner‑Namen in das Suchfeld ein.
+4. Das Backend prüft, ob Daten im Cache oder in der Datenbank vorhanden sind.
+5. Falls nötig, wird eine Anfrage an die Riot‑API gesendet.
+6. Die Antwort wird verarbeitet und an das Frontend übergeben.
+7. Die Daten werden angezeigt und der Summoner als „zuletzt aufgerufen“ gespeichert.
+
+### GUI-Beschreibung
+- **Startseite:** Suchfeld für Summoner‑Namen, ggf. Anzeige des zuletzt aufgerufenen Summoners.
+- **Ergebnisansicht:** Anzeige von Profilinformationen, Rang und Statistiken, Button zum Favorisieren.
+- **Favoritenansicht:** Liste gespeicherter Summoner‑Profile mit Möglichkeit zum direkten Aufruf.
+- **Fehleransicht:** Anzeige von Fehlermeldungen bei Problemen.
