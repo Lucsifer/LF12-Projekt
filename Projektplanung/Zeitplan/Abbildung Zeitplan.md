@@ -1,2 +1,3 @@
 ## Abbildung des Ganttdiagramms
-<img width="1423" height="659" alt="image" src="https://github.com/user-attachments/assets/53dae04c-f7b5-45a8-b72a-8794e2594976" />
+<img width="1439" height="658" alt="image" src="https://github.com/user-attachments/assets/03d66380-f5f3-43f8-88ac-f3e993b8882d" />
+
