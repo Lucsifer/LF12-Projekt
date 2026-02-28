@@ -14,7 +14,8 @@ async function getSummoner(gameName, tagLine, region) {
   const cluster = regionToCluster[region] ?? "europe";
   const apiKey  = process.env.RIOT_API_KEY;
 
-  // 1. Account via Riot ID holen → gibt puuid zurück
+  // Fetch account by Riot ID 
+  // returns puuid
   const accountRes = await fetch(
     `https://${cluster}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`,
     { headers: { "X-Riot-Token": apiKey }, cache: "no-store" }
@@ -22,7 +23,8 @@ async function getSummoner(gameName, tagLine, region) {
   if (!accountRes.ok) return null;
   const account = await accountRes.json();
 
-  // 2. Summoner via PUUID holen → gibt Level und Icon-ID zurück
+  // Fetch summoner by PUUID
+  // returns level and icon ID
   const summonerRes = await fetch(
     `https://${region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${account.puuid}`,
     { headers: { "X-Riot-Token": apiKey }, cache: "no-store" }
@@ -30,7 +32,8 @@ async function getSummoner(gameName, tagLine, region) {
   if (!summonerRes.ok) return { ...account, level: "?", iconUrl: null };
   const summoner = await summonerRes.json();
 
-  // 3. Neueste Data Dragon Version für die Icon-URL holen
+  // Get latest Data Dragon version for the icon URL
+  // hotfix else there is an undefined error lol
   const versionsRes = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
   const versions    = await versionsRes.json();
   const version     = versions[0];
@@ -53,8 +56,8 @@ export default async function SummonerPage({ params }) {
   if (!data) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center bg-gray-900 text-white gap-4">
-        <p className="text-red-400 text-xl">Spieler nicht gefunden</p>
-        <Link href="/" className="text-blue-400 hover:underline">← Zurück</Link>
+        <p className="text-red-400 text-xl">Player not found</p>
+        <Link href="/" className="text-blue-400 hover:underline">← Back</Link>
       </main>
     );
   }
@@ -80,7 +83,7 @@ export default async function SummonerPage({ params }) {
       </div>
 
       <Link href="/" className="text-blue-400 hover:underline text-sm">
-        ← Zurück zur Suche
+        ← Back to Search
       </Link>
     </main>
   );

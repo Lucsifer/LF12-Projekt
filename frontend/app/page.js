@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const [search, setSearch] = useState("");
   const [region, setRegion] = useState("euw1");
-  const [fehler, setFehler] = useState(null);
+  const [error, setError] = useState(null);
   const router = useRouter();
 
   function handleSearch() {
@@ -14,11 +14,11 @@ export default function Home() {
 
     const [gameName, tagLine] = search.split("#");
     if (!gameName || !tagLine) {
-      setFehler("Format: Name#Tag (z.B. Faker#T1)");
+      setError("Format: Name#Tag (e.g. Faker#T1)");
       return;
     }
 
-    setFehler(null);
+    setError(null);
     router.push(`/summoner/${region}/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`);
   }
 
@@ -41,12 +41,12 @@ export default function Home() {
           <option value="jp1">JP</option>
         </select>
 
-        {/* Suchfeld */}
+        {/* Search field */}
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Name#Tag (z.B. Faker#T1)"
+          placeholder="Name#Tag (e.g. Faker#T1)"
           className="w-80 rounded-lg bg-gray-700 px-4 py-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
@@ -59,7 +59,7 @@ export default function Home() {
         </button>
       </div>
 
-      {fehler && <p className="mt-6 text-red-400">{fehler}</p>}
+      {error && <p className="mt-6 text-red-400">{error}</p>}
     </main>
   );
 }
