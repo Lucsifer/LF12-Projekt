@@ -21,6 +21,9 @@ jobs:
           echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
           echo "RIOT_API_KEY=${{ secrets.RIOT_API_KEY }}" >> .env
 
+      - name: .git Ordner entfernen
+        run: rm -rf .git
+
       - name: Dateien auf Server kopieren
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -28,9 +31,8 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "."
-          target: "/opt/riotapp"
+          target: "/home/DEIN_USERNAME/riotapp"
           overwrite: true
-          exclude: ".git"
 
       - name: Docker Compose starten
         uses: appleboy/ssh-action@v1.0.0
