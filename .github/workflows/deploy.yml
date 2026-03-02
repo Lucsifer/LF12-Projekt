@@ -31,7 +31,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "."
-          target: "/home/DEIN_USERNAME/riotapp"
+          target: "/home/github-deployer/riotapp"
           overwrite: true
 
       - name: Docker Compose starten
