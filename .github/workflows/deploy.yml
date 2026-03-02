@@ -29,6 +29,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "."
           target: "/opt/riotapp"
+          overwrite: true
 
       - name: Docker Compose starten
         uses: appleboy/ssh-action@v1.0.0
