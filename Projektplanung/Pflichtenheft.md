@@ -37,7 +37,7 @@ Die Webanwendung besteht aus einem Frontend, das im Browser des Nutzers läuft, 
 Das Backend nimmt Anfragen vom Frontend entgegen, kommuniziert mit der Riot‑Games‑API, verarbeitet die Antworten und stellt die Daten dem Frontend strukturiert zur Verfügung. Ein Reverse‑Proxy übernimmt das Routing der Anfragen und sorgt für eine sichere und saubere Trennung der Komponenten. Uptime‑Kuma überwacht die Erreichbarkeit des Servers, der Webanwendung und der Datenbank (falls eingesetzt) und stellt den Status in einem Dashboard dar.
 
 ### 3.2 Use-Cases
-#### Use‑Case 1: Summoner suchen
+### 3.2.1 Use‑Case 1: Summoner suchen
 **Akteur:** Nutzer 
 
 **Ziel:** Ein Summoner‑Profil anhand eines Namens abrufen
@@ -65,7 +65,7 @@ Das Backend nimmt Anfragen vom Frontend entgegen, kommuniziert mit der Riot‑Ga
 - A1: Summoner existiert nicht → Fehlermeldung „Summoner nicht gefunden“
 - A2: Netzwerkfehler → Fehlermeldung „Server nicht erreichbar“
 
-#### Use‑Case 2: Summoner‑Daten anzeigen
+### 3.2.2 Use‑Case 2: Summoner‑Daten anzeigen
 **Akteur:** Nutzer 
 
 **Ziel:** Summoner‑Profilinformationen einsehen
@@ -86,7 +86,7 @@ Das Backend nimmt Anfragen vom Frontend entgegen, kommuniziert mit der Riot‑Ga
 **Alternativszenario:**
 - A1: Einzelne Daten fehlen → System zeigt „Keine Daten verfügbar“
 
-#### Use‑Case 3: Summoner als Favorit speichern
+### 3.2.3 Use‑Case 3: Summoner als Favorit speichern
 **Akteur:** Nutzer 
 
 **Ziel:** Ein Summoner‑Profil dauerhaft speichern
@@ -108,7 +108,7 @@ Das Backend nimmt Anfragen vom Frontend entgegen, kommuniziert mit der Riot‑Ga
 - A1: Summoner bereits in Favoriten → Meldung „Bereits gespeichert“
 - A2: Speicherfehler → Meldung „Favorit konnte nicht gespeichert werden“
 
-#### Use‑Case 4: Favoritenliste anzeigen
+### 3.2.4 Use‑Case 4: Favoritenliste anzeigen
 **Akteur:** Nutzer 
 
 **Ziel:** Gespeicherte Summoner schnell aufrufen
@@ -129,7 +129,7 @@ Das Backend nimmt Anfragen vom Frontend entgegen, kommuniziert mit der Riot‑Ga
 **Alternativszenario:**
 - A1: Keine Favoriten vorhanden → Meldung „Keine Favoriten gespeichert“
 
-#### Use‑Case 5: Letzten Summoner automatisch laden
+### 3.2.5 Use‑Case 5: Letzten Summoner automatisch laden
 **Akteur:** Nutzer 
 
 **Ziel:** Schnell auf zuletzt angesehenes Profil zugreifen
@@ -149,7 +149,7 @@ Das Backend nimmt Anfragen vom Frontend entgegen, kommuniziert mit der Riot‑Ga
 **Alternativszenario:**
 - A1: Kein Cache vorhanden → System zeigt Startseite ohne Daten
 
-#### Use‑Case 6: Infrastruktur überwachen
+### 3.2.6 Use‑Case 6: Infrastruktur überwachen
 **Akteur:** Administrator
 
 **Ziel:** Überblick über den Zustand der Infrastruktur erhalten
