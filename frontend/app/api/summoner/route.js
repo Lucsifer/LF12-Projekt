@@ -1,4 +1,4 @@
-// Region (euw1, na1 ...) → Riot API Cluster (europe, americas, asia)
+// Region (euw1, na1 ...) 
 const regionToCluster = {
   euw1: "europe",
   eun1: "europe",
