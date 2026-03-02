@@ -131,6 +131,70 @@ https://docs.portainer.io/start/install-ce/server/docker/linux#docker-compose
 Compose dateipfad = /srv/league-project/compose-file/portainer-compose.yaml
 
 ```bash
-# Deploy
+# Deploy portainer
 docker compose -f portainer-compose.yaml up -d
 ```
+
+## GitHub pipeline
+
+### User für Workflow erstellen
+
+```bash
+# Create the user
+sudo adduser github-deployer --disabled-password --gecos ""
+
+# Add them to the docker group so they can run containers
+sudo usermod -aG docker github-deployer
+
+# Add them to the project group so they can edit the files
+sudo usermod -aG project_devs github-deployer
+```
+
+### Generate SSH key for Github
+
+```bash
+# Switch to Github user
+sudo su - github-deployer
+
+# Generate key pair for ssh
+ssh-keygen -t ed25519 -C "github-actions-deploy"
+```
+
+Authorize the key next
+
+```bash
+mkdir ~/.ssh
+cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+```
+
+### GitHub secrets konfigurieren
+
+auf Github im Repo
+Repo > Settings > Secrets and variables > Actions > New repository secrets
+
+|Name|Value|
+|---|---|
+|SSH_PRIVATE_KEY|<SSH Private key>|
+|SSH_HOST|<Server IP>|
+|SSH_USER|github-deployer|
+
+### Deployment Script
+
+Das Deployment Script ist für den Dev gedacht. Dieser packt ihn in `.github/workflows/deploy.yml``
+
+```yml
+- name: Deploy to Hetzner
+  uses: appleboy/ssh-action@master
+  with:
+    host: ${{ secrets.SSH_HOST }}
+    username: ${{ secrets.SSH_USER }}
+    key: ${{ secrets.SSH_PRIVATE_KEY }}
+    script: |
+      cd /srv/league-project
+      git pull origin main
+      docker compose up -d --build
+```
+
+Das Deployment Script wird von iszshara erweitert für die Restlichen funktionalitäten
