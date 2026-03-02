@@ -30,6 +30,7 @@ jobs:
           source: "."
           target: "/opt/riotapp"
           overwrite: true
+          exclude: ".git"
 
       - name: Docker Compose starten
         uses: appleboy/ssh-action@v1.0.0
