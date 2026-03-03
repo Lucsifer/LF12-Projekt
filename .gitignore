@@ -1,11 +1,4 @@
 .env
 Backend/.env*
 .git
-/frontend/dist/*
-/frontend/dist/dev/cache/*
 /frontend/dist/
-/frontend/dist/dev/cache/
-/frontend/dist/dev/
-/frontend/dist/dev/*
-/frontend/dist/dev/cache/turbopack/
-/frontend/dist/dev/cache/turbopack/*
