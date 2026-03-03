@@ -18,7 +18,7 @@ jobs:
         run: |
           cd frontend
           npm install
-          npm run dev
+          npm run build
 
       - name: .env Datei erstellen
         run: |
@@ -37,7 +37,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "."
-          target: "/home/github-deployer/riotapp"
+          target: "/home/{{ secrets.SSH_USER }}/riotapp"
           overwrite: true
 
       - name: Docker Compose starten
