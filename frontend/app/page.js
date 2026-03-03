@@ -12,14 +12,14 @@ export default function Home() {
   function handleSearch() {
     if (!search) return;
 
-    const [gameName, tagLine] = search.split("#");
+    const [gameName, tagLine] = search.trim().split("#");
     if (!gameName || !tagLine) {
       setError("Format: Name#Tag (e.g. Faker#T1)");
       return;
     }
 
     setError(null);
-    router.push(`/summoner/${region}/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`);
+    router.push(`/summoner?region=${region}&name=${encodeURIComponent(gameName)}&tag=${encodeURIComponent(tagLine)}`);
   }
 
   // Allow pressing Enter to search
