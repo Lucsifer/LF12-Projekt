@@ -1,0 +1,4 @@
+[00:00:02.141] Server  LOG     ✓ Ready in 1447ms
+[00:00:03.417] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:08.762] Browser WARN    Image with src "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Kaisa_0.jpg" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
