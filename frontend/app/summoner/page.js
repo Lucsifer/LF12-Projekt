@@ -15,7 +15,7 @@ import emblemMaster      from "@/app/assets/ranked-emblem/emblem-master.png";
 import emblemGrandmaster from "@/app/assets/ranked-emblem/emblem-grandmaster.png";
 import emblemChallenger  from "@/app/assets/ranked-emblem/emblem-challenger.png";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+const API = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 const tierEmblems = {
   IRON:        emblemIron,
