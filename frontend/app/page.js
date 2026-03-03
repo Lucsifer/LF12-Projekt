@@ -19,7 +19,7 @@ export default function Home() {
     }
 
     setError(null);
-    router.push(`/summoner/${region}/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`);
+    router.push(`/summoner?region=${region}&name=${encodeURIComponent(gameName)}&tag=${encodeURIComponent(tagLine)}`);
   }
 
   // Allow pressing Enter to search
