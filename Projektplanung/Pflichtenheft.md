@@ -37,6 +37,141 @@ Die Webanwendung besteht aus einem Frontend, das im Browser des Nutzers läuft, 
 Das Backend nimmt Anfragen vom Frontend entgegen, kommuniziert mit der Riot‑Games‑API, verarbeitet die Antworten und stellt die Daten dem Frontend strukturiert zur Verfügung. Ein Reverse‑Proxy übernimmt das Routing der Anfragen und sorgt für eine sichere und saubere Trennung der Komponenten. Uptime‑Kuma überwacht die Erreichbarkeit des Servers, der Webanwendung und der Datenbank (falls eingesetzt) und stellt den Status in einem Dashboard dar.
 
 ### 3.2 Use-Cases
+### 3.2.1 Use‑Case 1: Summoner suchen
+**Akteur:** Nutzer 
+
+**Ziel:** Ein Summoner‑Profil anhand eines Namens abrufen
+
+**Auslöser:** Nutzer gibt einen Summoner‑Namen ein
+
+**Vorbedingungen:**
+- Die Webanwendung ist erreichbar
+- Der Nutzer hat Zugriff auf das Suchfeld
+
+**Nachbedingungen:** 
+- Summoner‑Daten wurden angezeigt oder eine Fehlermeldung wurde ausgegeben
+
+**Hauptszenario:**
+1. Nutzer öffnet die Webanwendung.
+2. Nutzer gibt einen Summoner‑Namen in das Suchfeld ein.
+3. System prüft die Eingabe auf Gültigkeit.
+4. System sendet eine Anfrage an das Backend.
+5. Backend ruft die Daten über die Riot‑API ab.
+6. Backend verarbeitet die Daten und gibt sie an das Frontend zurück.
+7. System zeigt die Summoner‑Daten an.
+8. System speichert den Summoner im Last‑Viewed‑Cache.
+
+**Alternativszenario:**
+- A1: Summoner existiert nicht → Fehlermeldung „Summoner nicht gefunden“
+- A2: Netzwerkfehler → Fehlermeldung „Server nicht erreichbar“
+
+### 3.2.2 Use‑Case 2: Summoner‑Daten anzeigen
+**Akteur:** Nutzer 
+
+**Ziel:** Summoner‑Profilinformationen einsehen
+
+**Vorbedingungen:**
+- Summoner‑Daten wurden erfolgreich geladen
+
+**Nachbedingungen:** 
+- Daten sind sichtbar und strukturiert dargestellt
+
+**Hauptszenario:**
+1. System erhält Summoner‑Daten vom Backend.
+2. System zeigt Profilinformationen (Name, Level, Icon) an.
+3. System zeigt Ranginformationen an.
+4. System zeigt Statistiken an.
+5. Nutzer kann Favoriten‑Button sehen.
+
+**Alternativszenario:**
+- A1: Einzelne Daten fehlen → System zeigt „Keine Daten verfügbar“
+
+### 3.2.3 Use‑Case 3: Summoner als Favorit speichern
+**Akteur:** Nutzer 
+
+**Ziel:** Ein Summoner‑Profil dauerhaft speichern
+
+**Vorbedingungen:**
+- Summoner‑Daten sind geladen
+- Favoritenfunktion ist verfügbar
+
+**Nachbedingungen:** 
+- Summoner ist in der Favoritenliste gespeichert
+
+**Hauptszenario:**
+1. Nutzer klickt auf „Favorisieren“.
+2. System prüft, ob Summoner bereits gespeichert ist.
+3. System speichert Summoner im lokalen Speicher oder in der Datenbank.
+4. System bestätigt die Speicherung.
+
+**Alternativszenario:**
+- A1: Summoner bereits in Favoriten → Meldung „Bereits gespeichert“
+- A2: Speicherfehler → Meldung „Favorit konnte nicht gespeichert werden“
+
+### 3.2.4 Use‑Case 4: Favoritenliste anzeigen
+**Akteur:** Nutzer 
+
+**Ziel:** Gespeicherte Summoner schnell aufrufen
+
+**Vorbedingungen:**
+- Favoriten werden angezeigt
+
+**Nachbedingungen:** 
+- Summoner ist in der Favoritenliste gespeichert
+
+**Hauptszenario:**
+1. Nutzer öffnet Favoritenliste.
+2. System lädt gespeicherte Favoriten.
+3. System zeigt die Liste an.
+4. Nutzer wählt einen Favoriten aus.
+5. System lädt das Profil wie in Use‑Case 1.
+
+**Alternativszenario:**
+- A1: Keine Favoriten vorhanden → Meldung „Keine Favoriten gespeichert“
+
+### 3.2.5 Use‑Case 5: Letzten Summoner automatisch laden
+**Akteur:** Nutzer 
+
+**Ziel:** Schnell auf zuletzt angesehenes Profil zugreifen
+
+**Vorbedingungen:**
+- Ein Summoner wurde zuvor erfolgreich geladen
+
+**Nachbedingungen:** 
+- Letzter Summoner wird angezeigt
+
+**Hauptszenario:**
+1. Nutzer öffnet die Webanwendung.
+2. System prüft den Last‑Viewed‑Cache.
+3. System lädt den gespeicherten Summoner.
+4. System zeigt die Daten ohne API‑Abfrage an.
+
+**Alternativszenario:**
+- A1: Kein Cache vorhanden → System zeigt Startseite ohne Daten
+
+### 3.2.6 Use‑Case 6: Infrastruktur überwachen
+**Akteur:** Administrator
+
+**Ziel:** Überblick über den Zustand der Infrastruktur erhalten
+
+**Auslöser:** Admin möchte prüfen, ob alle Komponenten funktionieren
+
+**Vorbedingungen:**
+- Uptime‑Kuma ist installiert und konfiguriert
+- Admin hat Zugriff auf das Dashboard
+
+**Nachbedingungen:** 
+- Admin kennt den aktuellen Zustand aller überwachten Komponenten
+
+**Hauptszenario:**
+1. Admin öffnet das Uptime‑Kuma‑Dashboard.
+2. System zeigt den Status von Server, Webanwendung und Datenbank an.
+3. Admin prüft die Statusanzeigen.
+4. Admin erkennt eventuelle Störungen oder Ausfälle.
+
+**Alternativszenario:**
+- A1: Monitoring nicht erreichbar → System zeigt Fehlerseite
+- A2: Einzelne Komponenten melden Fehler → Admin erhält Status „offline“
 
 ## 4. Produktfunktionen
 ### 4.1 Summoner-Suche
@@ -82,3 +217,51 @@ Das Backend nimmt Anfragen vom Frontend entgegen, kommuniziert mit der Riot‑Ga
 
 ## 5. Produktdaten
 ### 5.1 Eingabedaten
+- Summoner‑Name (Text).
+- Auswahl eines Favoriten aus einer Liste.
+
+### 5.2 Ausgabedaten
+- Summoner‑Profilinformationen (Name, Level, Icon).
+- Ranginformationen (z. B. Solo/Duo, Flex).
+- Statistiken (z. B. Anzahl Spiele, Wins/Losses – je nach API‑Umfang).
+- Fehlermeldungen (Text).
+- Monitoring‑Status (z. B. „online“, „offline“).
+
+### 5.3 Datenquellen
+- Riot‑Games‑API als externe Datenquelle.
+- Lokaler Cache (z. B. Browser‑Storage) für Favoriten und letzten Summoner.
+- Datenbank auf dem Server für persistente Speicherung.
+
+## 6. Nicht-funktionale Anforderungen
+### 6.1 Sicherheit
+- Alle Verbindungen zur Webanwendung erfolgen über HTTPS.
+- Der API‑Key wird ausschließlich serverseitig verwaltet und nicht im Client offengelegt.
+- Die Firewall des Hosting‑Anbieters ist nach dem Prinzip der minimalen Öffnung konfiguriert.
+
+### 6.2 Performance
+- Die Antwortzeit bei einer regulären Summoner‑Abfrage soll im Normalfall unter 2 Sekunden liegen.
+- Durch Caching des zuletzt aufgerufenen Summoners werden unnötige API‑Anfragen vermieden.
+
+### 6.3 Zuverlässigkeit
+- Uptime‑Kuma überwacht die Kernkomponenten und zeigt Ausfälle an.
+- Der Server ist so konfiguriert, dass Dienste bei einem Neustart automatisch wieder gestartet werden.
+
+### 6.4 Usability
+- Die Benutzeroberfläche ist übersichtlich und intuitiv bedienbar.
+- Wichtige Informationen sind klar strukturiert und ohne technische Vorkenntnisse verständlich.
+- Die Anwendung ist auf gängigen Bildschirmgrößen gut nutzbar.
+
+### 6.5 Wartbarkeit
+- Der Quellcode ist strukturiert und kommentiert.
+- Konfigurationen (z. B. API‑Key, Endpoints) sind zentral verwaltet.
+
+## 7. Systemmodelle
+### 7.1 Architekturmodell
+Die Architektur folgt einem klassischen Web‑Anwendungsmodell. Der Nutzer greift mit einem Browser auf die Webanwendung zu. Die Anfrage wird zunächst vom Reverse‑Proxy entgegengenommen, der sie an das Backend weiterleitet. Das Backend kommuniziert mit der Riot‑Games‑API, verarbeitet die Antworten und stellt die Daten dem Frontend zur Verfügung.
+Optional kann eine Datenbank angebunden werden, um Favoriten oder Caching‑Informationen zu speichern. Uptime‑Kuma läuft als separates System bzw. Dienst und überwacht die Erreichbarkeit der relevanten Komponenten.
+
+### 7.2 GUI-Beschreibung
+- **Startseite:** Suchfeld für Summoner‑Namen, ggf. Anzeige des zuletzt aufgerufenen Summoners.
+- **Ergebnisansicht:** Anzeige von Profilinformationen, Rang und Statistiken, Button zum Favorisieren.
+- **Favoritenansicht:** Liste gespeicherter Summoner‑Profile mit Möglichkeit zum direkten Aufruf.
+- **Fehleransicht:** Anzeige von Fehlermeldungen bei Problemen.
