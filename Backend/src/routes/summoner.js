@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { cache } from "../middleware/cache.js";
 import {
   regionToCluster,
   fetchAccount,
@@ -13,7 +12,7 @@ import {
 const router = Router();
 
 // GET /api/summoner/:region/:name/:tag
-router.get("/:region/:name/:tag", cache(300), async (req, res) => {
+router.get("/:region/:name/:tag", async (req, res) => {
   const { region, name, tag } = req.params;
   const gameName = decodeURIComponent(name);
   const tagLine  = decodeURIComponent(tag);

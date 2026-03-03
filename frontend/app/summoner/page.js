@@ -207,8 +207,9 @@ function SummonerContent() {
 
         if (rankedRes.ok)  setRanked(await rankedRes.json());
         if (matchesRes.ok) setMatches(await matchesRes.json());
-      } catch {
-        setError("Something went wrong");
+      } catch (err) {
+        console.error("Fetch error:", err);
+        setError(`Backend nicht erreichbar (${API}) – läuft der Backend-Server?`);
       }
 
       setLoading(false);

@@ -22,7 +22,7 @@ function Home() {
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
     function handleSearch() {
         if (!search) return;
-        const [gameName, tagLine] = search.split("#");
+        const [gameName, tagLine] = search.trim().split("#");
         if (!gameName || !tagLine) {
             setError("Format: Name#Tag (e.g. Faker#T1)");
             return;

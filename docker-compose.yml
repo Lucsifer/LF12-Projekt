@@ -1,15 +1,15 @@
 services:
   backend:
-  build: ./Backend
-  ports:
-    - "4000:4000"
-  environment:
-    - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-    - REDIS_URL=redis://redis:6379
-    - RIOT_API_KEY=${RIOT_API_KEY}
-  depends_on:
-    - postgres
-    - redis
+    build: ./Backend
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - REDIS_URL=redis://redis:6379
+      - RIOT_API_KEY=${RIOT_API_KEY}
+    depends_on:
+      - postgres
+      - redis
 
   postgres:
     image: postgres:16

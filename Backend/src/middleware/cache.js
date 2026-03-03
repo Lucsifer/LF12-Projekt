@@ -5,15 +5,17 @@ export function cache(ttl = 300) {
   return async (req, res, next) => {
     const key = `cache:${req.originalUrl}`;
 
-    const cached = await redis.get(key);
-    if (cached) return res.json(JSON.parse(cached));
+    if (redis.isReady) {
+      const cached = await redis.get(key);
+      if (cached) return res.json(JSON.parse(cached));
 
-    // Intercept res.json to store the response in Redis before sending
-    const originalJson = res.json.bind(res);
-    res.json = (data) => {
-      redis.setEx(key, ttl, JSON.stringify(data));
-      return originalJson(data);
-    };
+      // Intercept res.json to store the response in Redis before sending
+      const originalJson = res.json.bind(res);
+      res.json = (data) => {
+        redis.setEx(key, ttl, JSON.stringify(data));
+        return originalJson(data);
+      };
+    }
 
     next();
   };

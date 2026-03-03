@@ -12,7 +12,7 @@ export default function Home() {
   function handleSearch() {
     if (!search) return;
 
-    const [gameName, tagLine] = search.split("#");
+    const [gameName, tagLine] = search.trim().split("#");
     if (!gameName || !tagLine) {
       setError("Format: Name#Tag (e.g. Faker#T1)");
       return;

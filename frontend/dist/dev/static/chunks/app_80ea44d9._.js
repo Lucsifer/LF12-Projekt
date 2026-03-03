@@ -253,7 +253,7 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-const API = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const API = ("TURBOPACK compile-time value", "http://localhost:4000") || "http://localhost:4000";
 const tierEmblems = {
     IRON: __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$assets$2f$ranked$2d$emblem$2f$emblem$2d$iron$2e$png$2e$mjs__$7b$__IMAGE__$3d3e$__$225b$project$5d2f$app$2f$assets$2f$ranked$2d$emblem$2f$emblem$2d$iron$2e$png__$28$static__in__ecmascript$2c$__tag__client$2922$__$7d$__$5b$app$2d$client$5d$__$28$structured__image__object__with__data__url$2c$__ecmascript$29$__["default"],
     BRONZE: __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$assets$2f$ranked$2d$emblem$2f$emblem$2d$bronze$2e$png$2e$mjs__$7b$__IMAGE__$3d3e$__$225b$project$5d2f$app$2f$assets$2f$ranked$2d$emblem$2f$emblem$2d$bronze$2e$png__$28$static__in__ecmascript$2c$__tag__client$2922$__$7d$__$5b$app$2d$client$5d$__$28$structured__image__object__with__data__url$2c$__ecmascript$29$__["default"],
@@ -704,8 +704,9 @@ function SummonerContent() {
                     ]);
                     if (rankedRes.ok) setRanked(await rankedRes.json());
                     if (matchesRes.ok) setMatches(await matchesRes.json());
-                } catch  {
-                    setError("Something went wrong");
+                } catch (err) {
+                    console.error("Fetch error:", err);
+                    setError(`Backend nicht erreichbar (${API}) – läuft der Backend-Server?`);
                 }
                 setLoading(false);
             }
@@ -724,12 +725,12 @@ function SummonerContent() {
                 children: "Loading..."
             }, void 0, false, {
                 fileName: "[project]/app/summoner/page.js",
-                lineNumber: 223,
+                lineNumber: 224,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/summoner/page.js",
-            lineNumber: 222,
+            lineNumber: 223,
             columnNumber: 7
         }, this);
     }
@@ -742,7 +743,7 @@ function SummonerContent() {
                     children: error ?? "Player not found"
                 }, void 0, false, {
                     fileName: "[project]/app/summoner/page.js",
-                    lineNumber: 231,
+                    lineNumber: 232,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -751,13 +752,13 @@ function SummonerContent() {
                     children: "← Back to Search"
                 }, void 0, false, {
                     fileName: "[project]/app/summoner/page.js",
-                    lineNumber: 232,
+                    lineNumber: 233,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/summoner/page.js",
-            lineNumber: 230,
+            lineNumber: 231,
             columnNumber: 7
         }, this);
     }
@@ -773,20 +774,20 @@ function SummonerContent() {
                         className: "absolute left-1/2 top-1/3 h-125 w-125 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-700/10 blur-3xl"
                     }, void 0, false, {
                         fileName: "[project]/app/summoner/page.js",
-                        lineNumber: 244,
+                        lineNumber: 245,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "absolute bottom-1/4 right-1/4 h-72 w-72 rounded-full bg-indigo-700/10 blur-3xl"
                     }, void 0, false, {
                         fileName: "[project]/app/summoner/page.js",
-                        lineNumber: 245,
+                        lineNumber: 246,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/summoner/page.js",
-                lineNumber: 243,
+                lineNumber: 244,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -810,14 +811,14 @@ function SummonerContent() {
                                     unoptimized: true
                                 }, void 0, false, {
                                     fileName: "[project]/app/summoner/page.js",
-                                    lineNumber: 254,
+                                    lineNumber: 255,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "absolute inset-0 bg-linear-to-b from-black/30 via-black/20 to-black/70"
                                 }, void 0, false, {
                                     fileName: "[project]/app/summoner/page.js",
-                                    lineNumber: 263,
+                                    lineNumber: 264,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -832,7 +833,7 @@ function SummonerContent() {
                                             unoptimized: true
                                         }, void 0, false, {
                                             fileName: "[project]/app/summoner/page.js",
-                                            lineNumber: 266,
+                                            lineNumber: 267,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -850,13 +851,13 @@ function SummonerContent() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/summoner/page.js",
-                                                            lineNumber: 278,
+                                                            lineNumber: 279,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/summoner/page.js",
-                                                    lineNumber: 276,
+                                                    lineNumber: 277,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -867,30 +868,30 @@ function SummonerContent() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/summoner/page.js",
-                                                    lineNumber: 280,
+                                                    lineNumber: 281,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/summoner/page.js",
-                                            lineNumber: 275,
+                                            lineNumber: 276,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/summoner/page.js",
-                                    lineNumber: 264,
+                                    lineNumber: 265,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/summoner/page.js",
-                            lineNumber: 252,
+                            lineNumber: 253,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/summoner/page.js",
-                        lineNumber: 251,
+                        lineNumber: 252,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -904,7 +905,7 @@ function SummonerContent() {
                                         label: "Ranked Solo / Duo"
                                     }, void 0, false, {
                                         fileName: "[project]/app/summoner/page.js",
-                                        lineNumber: 290,
+                                        lineNumber: 291,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(RankCard, {
@@ -912,13 +913,13 @@ function SummonerContent() {
                                         label: "Ranked Flex"
                                     }, void 0, false, {
                                         fileName: "[project]/app/summoner/page.js",
-                                        lineNumber: 291,
+                                        lineNumber: 292,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/summoner/page.js",
-                                lineNumber: 289,
+                                lineNumber: 290,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -929,7 +930,7 @@ function SummonerContent() {
                                         children: "Recent Matches"
                                     }, void 0, false, {
                                         fileName: "[project]/app/summoner/page.js",
-                                        lineNumber: 295,
+                                        lineNumber: 296,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -940,7 +941,7 @@ function SummonerContent() {
                                                 children: "No matches found."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/summoner/page.js",
-                                                lineNumber: 299,
+                                                lineNumber: 300,
                                                 columnNumber: 17
                                             }, this),
                                             matches.map((match)=>{
@@ -970,7 +971,7 @@ function SummonerContent() {
                                                                             unoptimized: true
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/summoner/page.js",
-                                                                            lineNumber: 325,
+                                                                            lineNumber: 326,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -983,7 +984,7 @@ function SummonerContent() {
                                                                                             children: won ? "WIN" : "LOSS"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/summoner/page.js",
-                                                                                            lineNumber: 335,
+                                                                                            lineNumber: 336,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -991,13 +992,13 @@ function SummonerContent() {
                                                                                             children: formatGameMode(match.info.gameMode)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/summoner/page.js",
-                                                                                            lineNumber: 338,
+                                                                                            lineNumber: 339,
                                                                                             columnNumber: 29
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/summoner/page.js",
-                                                                                    lineNumber: 334,
+                                                                                    lineNumber: 335,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1005,19 +1006,19 @@ function SummonerContent() {
                                                                                     children: player.championName
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/summoner/page.js",
-                                                                                    lineNumber: 340,
+                                                                                    lineNumber: 341,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/summoner/page.js",
-                                                                            lineNumber: 333,
+                                                                            lineNumber: 334,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/summoner/page.js",
-                                                                    lineNumber: 324,
+                                                                    lineNumber: 325,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1032,7 +1033,7 @@ function SummonerContent() {
                                                                                     children: " / "
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/summoner/page.js",
-                                                                                    lineNumber: 347,
+                                                                                    lineNumber: 348,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1040,7 +1041,7 @@ function SummonerContent() {
                                                                                     children: player.deaths
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/summoner/page.js",
-                                                                                    lineNumber: 348,
+                                                                                    lineNumber: 349,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1048,14 +1049,14 @@ function SummonerContent() {
                                                                                     children: " / "
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/summoner/page.js",
-                                                                                    lineNumber: 349,
+                                                                                    lineNumber: 350,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 player.assists
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/summoner/page.js",
-                                                                            lineNumber: 345,
+                                                                            lineNumber: 346,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1063,19 +1064,19 @@ function SummonerContent() {
                                                                             children: formatDuration(match.info.gameDuration)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/summoner/page.js",
-                                                                            lineNumber: 352,
+                                                                            lineNumber: 353,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/summoner/page.js",
-                                                                    lineNumber: 344,
+                                                                    lineNumber: 345,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/summoner/page.js",
-                                                            lineNumber: 321,
+                                                            lineNumber: 322,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1089,7 +1090,7 @@ function SummonerContent() {
                                                                             children: team1Won ? "Victory" : "Defeat"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/summoner/page.js",
-                                                                            lineNumber: 358,
+                                                                            lineNumber: 359,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1100,18 +1101,18 @@ function SummonerContent() {
                                                                                     isSelf: p.puuid === summoner.puuid
                                                                                 }, p.puuid, false, {
                                                                                     fileName: "[project]/app/summoner/page.js",
-                                                                                    lineNumber: 363,
+                                                                                    lineNumber: 364,
                                                                                     columnNumber: 29
                                                                                 }, this))
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/summoner/page.js",
-                                                                            lineNumber: 361,
+                                                                            lineNumber: 362,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/summoner/page.js",
-                                                                    lineNumber: 357,
+                                                                    lineNumber: 358,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1122,7 +1123,7 @@ function SummonerContent() {
                                                                             children: !team1Won ? "Victory" : "Defeat"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/summoner/page.js",
-                                                                            lineNumber: 369,
+                                                                            lineNumber: 370,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1133,37 +1134,37 @@ function SummonerContent() {
                                                                                     isSelf: p.puuid === summoner.puuid
                                                                                 }, p.puuid, false, {
                                                                                     fileName: "[project]/app/summoner/page.js",
-                                                                                    lineNumber: 374,
+                                                                                    lineNumber: 375,
                                                                                     columnNumber: 29
                                                                                 }, this))
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/summoner/page.js",
-                                                                            lineNumber: 372,
+                                                                            lineNumber: 373,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/summoner/page.js",
-                                                                    lineNumber: 368,
+                                                                    lineNumber: 369,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/summoner/page.js",
-                                                            lineNumber: 356,
+                                                            lineNumber: 357,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, match.metadata.matchId, true, {
                                                     fileName: "[project]/app/summoner/page.js",
-                                                    lineNumber: 315,
+                                                    lineNumber: 316,
                                                     columnNumber: 19
                                                 }, this);
                                             })
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/summoner/page.js",
-                                        lineNumber: 297,
+                                        lineNumber: 298,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1172,31 +1173,31 @@ function SummonerContent() {
                                         children: "← Back to Search"
                                     }, void 0, false, {
                                         fileName: "[project]/app/summoner/page.js",
-                                        lineNumber: 384,
+                                        lineNumber: 385,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/summoner/page.js",
-                                lineNumber: 294,
+                                lineNumber: 295,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/summoner/page.js",
-                        lineNumber: 287,
+                        lineNumber: 288,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/summoner/page.js",
-                lineNumber: 248,
+                lineNumber: 249,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/summoner/page.js",
-        lineNumber: 241,
+        lineNumber: 242,
         columnNumber: 5
     }, this);
 }
@@ -1215,22 +1216,22 @@ function SummonerPage() {
                 children: "Loading..."
             }, void 0, false, {
                 fileName: "[project]/app/summoner/page.js",
-                lineNumber: 398,
+                lineNumber: 399,
                 columnNumber: 9
             }, void 0)
         }, void 0, false, {
             fileName: "[project]/app/summoner/page.js",
-            lineNumber: 397,
+            lineNumber: 398,
             columnNumber: 7
         }, void 0),
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SummonerContent, {}, void 0, false, {
             fileName: "[project]/app/summoner/page.js",
-            lineNumber: 401,
+            lineNumber: 402,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/summoner/page.js",
-        lineNumber: 396,
+        lineNumber: 397,
         columnNumber: 5
     }, this);
 }
