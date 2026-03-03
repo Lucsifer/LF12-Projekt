@@ -37,7 +37,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "."
-          target: "/home/${{ secrets.SSH_USER }}/riotapp"
+          target: "/opt/riotapp"
           overwrite: true
 
       - name: Docker Compose starten
