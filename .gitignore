@@ -1,3 +1,4 @@
 .env
 Backend/.env*
 .git
+/frontend/dist/*
