@@ -2,6 +2,28 @@ import Image from "next/image";
 import Link from "next/link";
 import { regionToCluster } from "@/lib/regions";
 
+import emblemIron        from "@/app/assets/ranked-emblem/emblem-iron.png";
+import emblemBronze      from "@/app/assets/ranked-emblem/emblem-bronze.png";
+import emblemSilver      from "@/app/assets/ranked-emblem/emblem-silver.png";
+import emblemGold        from "@/app/assets/ranked-emblem/emblem-gold.png";
+import emblemPlatinum    from "@/app/assets/ranked-emblem/emblem-platinum.png";
+import emblemDiamond     from "@/app/assets/ranked-emblem/emblem-diamond.png";
+import emblemMaster      from "@/app/assets/ranked-emblem/emblem-master.png";
+import emblemGrandmaster from "@/app/assets/ranked-emblem/emblem-grandmaster.png";
+import emblemChallenger  from "@/app/assets/ranked-emblem/emblem-challenger.png";
+
+const tierEmblems = {
+  IRON:        emblemIron,
+  BRONZE:      emblemBronze,
+  SILVER:      emblemSilver,
+  GOLD:        emblemGold,
+  PLATINUM:    emblemPlatinum,
+  DIAMOND:     emblemDiamond,
+  MASTER:      emblemMaster,
+  GRANDMASTER: emblemGrandmaster,
+  CHALLENGER:  emblemChallenger,
+};
+
 async function getSummoner(gameName, tagLine, region) {
   const cluster = regionToCluster[region] ?? "europe";
   const apiKey  = process.env.RIOT_API_KEY;
@@ -22,6 +44,7 @@ async function getSummoner(gameName, tagLine, region) {
     );
     if (!summonerRes.ok) return { ...account, level: "?", iconUrl: null };
     const summoner = await summonerRes.json();
+    console.log("[Summoner] raw:", JSON.stringify(summoner));
 
     // 3. Get latest Data Dragon version for icon URLs
     // No cache: "no-store" here — version only changes on patch days (~2 weeks)
@@ -71,6 +94,29 @@ async function getSummoner(gameName, tagLine, region) {
   }
 }
 
+async function getRankedStats(puuid, region) {
+  const apiKey = process.env.RIOT_API_KEY;
+  console.log("[Ranked] puuid:", puuid, "| region:", region);
+  try {
+    const res = await fetch(
+      `https://${region}.api.riotgames.com/lol/league/v4/entries/by-puuid/${puuid}`,
+      { headers: { "X-Riot-Token": apiKey }, cache: "no-store" }
+    );
+    console.log("[Ranked] HTTP status:", res.status);
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("[Ranked] Error body:", errText);
+      return [];
+    }
+    const data = await res.json();
+    console.log("[Ranked] entries:", JSON.stringify(data));
+    return data;
+  } catch (e) {
+    console.error("[Ranked] fetch threw:", e);
+    return [];
+  }
+}
+
 async function getMatchHistory(puuid, cluster) {
   const apiKey = process.env.RIOT_API_KEY;
 
@@ -115,6 +161,120 @@ function formatGameMode(mode) {
   };
   // If the mode is not known then it displays the raw one
   return modes[mode] ?? mode;
+}
+
+const tierColors = {
+  IRON:        "text-slate-400",
+  BRONZE:      "text-amber-600",
+  SILVER:      "text-slate-300",
+  GOLD:        "text-yellow-400",
+  PLATINUM:    "text-teal-300",
+  EMERALD:     "text-emerald-400",
+  DIAMOND:     "text-blue-300",
+  MASTER:      "text-purple-400",
+  GRANDMASTER: "text-red-400",
+  CHALLENGER:  "text-cyan-300",
+};
+
+function capitalizeTier(tier) {
+  return tier ? tier[0] + tier.slice(1).toLowerCase() : "";
+}
+
+// SVG donut pie chart: green = wins, red = losses, percentage in center
+function WinRatePie({ wins, losses }) {
+  const total = wins + losses;
+  if (total === 0) return null;
+
+  const winPct = Math.round((wins / total) * 100);
+  const angle  = (wins / total) * 360;
+
+  // Full win edge case
+  if (angle >= 360) {
+    return (
+      <svg viewBox="0 0 100 100" className="w-20 h-20">
+        <circle cx="50" cy="50" r="40" fill="#22c55e" />
+        <circle cx="50" cy="50" r="26" fill="#1e293b" />
+        <text x="50" y="47" textAnchor="middle" fontSize="13" fontWeight="bold" fill="white">{winPct}%</text>
+        <text x="50" y="59" textAnchor="middle" fontSize="7" fill="#94a3b8">Win Rate</text>
+      </svg>
+    );
+  }
+
+  const rad    = (angle - 90) * (Math.PI / 180);
+  const x      = 50 + 40 * Math.cos(rad);
+  const y      = 50 + 40 * Math.sin(rad);
+  const large  = angle > 180 ? 1 : 0;
+
+  return (
+    <svg viewBox="0 0 100 100" className="w-20 h-20">
+      {/* Loss background (red full circle) */}
+      <circle cx="50" cy="50" r="40" fill="#ef4444" />
+      {/* Win arc (green) */}
+      <path d={`M 50 50 L 50 10 A 40 40 0 ${large} 1 ${x} ${y} Z`} fill="#22c55e" />
+      {/* Donut hole */}
+      <circle cx="50" cy="50" r="26" fill="#1e293b" />
+      <text x="50" y="47" textAnchor="middle" fontSize="13" fontWeight="bold" fill="white">{winPct}%</text>
+      <text x="50" y="59" textAnchor="middle" fontSize="7" fill="#94a3b8">Win Rate</text>
+    </svg>
+  );
+}
+
+// Left-sidebar card showing rank, LP, W/L and pie chart
+function RankCard({ entry, label }) {
+  if (!entry) {
+    return (
+      <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-5">
+        <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">{label}</p>
+        <p className="text-slate-400 text-sm">Unranked</p>
+      </div>
+    );
+  }
+
+  const { tier, rank, leaguePoints, wins, losses } = entry;
+  const total    = wins + losses;
+  const hasRank  = !["MASTER", "GRANDMASTER", "CHALLENGER"].includes(tier);
+  const color    = tierColors[tier] ?? "text-white";
+  const emblem   = tierEmblems[tier] ?? null;
+
+  return (
+    <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-5">
+      <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-4">{label}</p>
+
+      {/* Emblem + rank */}
+      <div className="flex flex-col items-center gap-1">
+        {emblem && (
+          <div style={{ width: "100%", height: "140px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={emblem.src}
+              alt={tier}
+              style={{ width: "100%", height: "auto", transform: "scale(3)", transformOrigin: "center center" }}
+            />
+          </div>
+        )}
+        <p className={`text-lg font-bold ${color}`}>
+          {capitalizeTier(tier)}{hasRank ? ` ${rank}` : ""}
+        </p>
+        <p className="text-slate-400 text-sm">{leaguePoints} LP</p>
+      </div>
+
+      {/* Divider */}
+      <div className="my-4 border-t border-slate-700/50" />
+
+      {/* Pie chart + stats */}
+      <div className="flex flex-col items-center gap-3">
+        <WinRatePie wins={wins} losses={losses} />
+        <div className="text-center text-sm">
+          <p className="text-slate-300 font-medium">{total} Games</p>
+          <p className="text-xs mt-1">
+            <span className="text-green-400">{wins}W</span>
+            <span className="text-slate-500"> / </span>
+            <span className="text-red-400">{losses}L</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // Riot API champion names that don't match DDragon filenames
@@ -169,21 +329,30 @@ export default async function SummonerPage({ params }) {
   }
 
   const cluster = regionToCluster[region] ?? "europe";
-  const matches = await getMatchHistory(data.puuid, cluster);
+  const [matches, rankedEntries] = await Promise.all([
+    getMatchHistory(data.puuid, cluster),
+    getRankedStats(data.puuid, region),
+  ]);
+
+  const soloQ = rankedEntries.find(e => e.queueType === "RANKED_SOLO_5x5") ?? null;
+  const flexQ = rankedEntries.find(e => e.queueType === "RANKED_FLEX_SR")  ?? null;
+  console.log("[Page] soloQ:", soloQ, "| flexQ:", flexQ);
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-start overflow-hidden bg-slate-950 py-16 text-white">
+    <main className="relative flex min-h-screen flex-col items-center justify-start bg-slate-950 py-16 text-white">
 
-      {/* Background glow blobs */}
-      <div className="pointer-events-none absolute left-1/2 top-1/3 h-125 w-125 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-700/10 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-1/4 right-1/4 h-72 w-72 rounded-full bg-indigo-700/10 blur-3xl" />
+      {/* Background glow blobs — isolated so overflow-hidden doesn't break sticky */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute left-1/2 top-1/3 h-125 w-125 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-700/10 blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 h-72 w-72 rounded-full bg-indigo-700/10 blur-3xl" />
+      </div>
 
-      <div className="relative z-10 w-full max-w-4xl px-4">
+      <div className="relative z-10 w-full max-w-5xl px-4">
 
-        {/* Profile card */}
+        {/* Profile card — full width */}
         <div className="overflow-hidden rounded-2xl border border-slate-700/50">
 
-          {/* Splash art banner */}
+          {/* Splash art + profile overlay */}
           <div className="relative overflow-hidden bg-slate-900">
             {data.splashUrl && (
               <Image
@@ -194,37 +363,50 @@ export default async function SummonerPage({ params }) {
                 style={{ width: "100%", height: "auto", display: "block" }}
               />
             )}
-            {/* Gradient only at the bottom edge so the splash art stays visible */}
-            <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-slate-800" />
-          </div>
 
-          {/* Profile content */}
-          <div className="bg-slate-800/90 px-10 pb-10 text-center backdrop-blur-sm">
-            {data.iconUrl && (
-              <Image
-                src={data.iconUrl}
-                alt="Profile Icon"
-                width={110}
-                height={110}
-                className="mx-auto -mt-14 rounded-full border-4 border-blue-500 ring-4 ring-slate-800"
-              />
-            )}
-            <h1 className="mt-4 text-3xl font-bold">
-              {data.gameName}
-              <span className="text-slate-400">#{data.tagLine}</span>
-            </h1>
-            <p className="mt-2 text-slate-400">Level {data.level}</p>
+            {/* Dark gradient for readability */}
+            <div className="absolute inset-0 bg-linear-to-b from-black/30 via-black/20 to-black/70" />
+
+            {/* Profile content — centered over the splash art */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+              {data.iconUrl && (
+                <Image
+                  src={data.iconUrl}
+                  alt="Profile Icon"
+                  width={110}
+                  height={110}
+                  className="rounded-full border-4 border-blue-500 ring-4 ring-black/40 drop-shadow-2xl"
+                />
+              )}
+              <div className="text-center drop-shadow-lg">
+                <h1 className="text-3xl font-bold">
+                  {data.gameName}
+                  <span className="text-slate-300">#{data.tagLine}</span>
+                </h1>
+                <p className="mt-1 text-slate-300">Level {data.level}</p>
+              </div>
+            </div>
           </div>
 
         </div>
 
-        {/* Match history */}
-        <h2 className="mt-10 mb-4 text-lg font-semibold text-slate-300">Recent Matches</h2>
+        {/* Two-column layout: sticky rank sidebar + match history */}
+        <div className="mt-6 flex gap-6 items-start">
 
-        <div className="flex flex-col gap-4">
-          {matches.length === 0 && (
-            <p className="text-slate-500">No matches found.</p>
-          )}
+          {/* Sticky left sidebar — bleibt beim Scrollen sichtbar */}
+          <div className="sticky top-6 w-56 shrink-0 flex flex-col gap-4">
+            <RankCard entry={soloQ} label="Ranked Solo / Duo" />
+            <RankCard entry={flexQ} label="Ranked Flex" />
+          </div>
+
+          {/* Match history — füllt den restlichen Platz */}
+          <div className="flex-1 min-w-0">
+            <h2 className="mb-4 text-lg font-semibold text-slate-300">Recent Matches</h2>
+
+            <div className="flex flex-col gap-4">
+              {matches.length === 0 && (
+                <p className="text-slate-500">No matches found.</p>
+              )}
 
           {matches.map((match) => {
             const participants = match.info?.participants;
@@ -324,11 +506,14 @@ export default async function SummonerPage({ params }) {
           })}
         </div>
 
-        <Link href="/" className="mt-8 inline-block text-sm text-blue-400 hover:underline">
+        <Link href="/" className="mt-6 inline-block text-sm text-blue-400 hover:underline">
           ← Back to Search
         </Link>
 
-      </div>
+          </div>{/* right column */}
+        </div>{/* flex row */}
+
+      </div>{/* max-w-5xl */}
     </main>
   );
 }
