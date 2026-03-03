@@ -47,6 +47,6 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ~/riotapp
+            cd /opt/riotapp
             docker compose pull
             docker compose up -d --build
