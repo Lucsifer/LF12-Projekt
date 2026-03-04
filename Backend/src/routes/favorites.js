@@ -4,20 +4,20 @@ import db from "../services/db.js";
 const router = Router();
 
 // GET /api/favorites
-router.get("/", async (req, res) => {
+router.get("/", async (_req, res) => {
   const result = await db.query("SELECT * FROM favorites ORDER BY created_at DESC");
   res.json(result.rows);
 });
 
-// POST /api/favorites  { summoner_name, region, puuid }
+// POST /api/favorites  { game_name, tag_line, region, puuid }
 router.post("/", async (req, res) => {
-  const { summoner_name, region, puuid } = req.body;
+  const { game_name, tag_line, region, puuid } = req.body;
   const result = await db.query(
-    `INSERT INTO favorites (summoner_name, region, puuid)
-     VALUES ($1, $2, $3)
+    `INSERT INTO favorites (game_name, tag_line, region, puuid)
+     VALUES ($1, $2, $3, $4)
      ON CONFLICT (puuid) DO NOTHING
      RETURNING *`,
-    [summoner_name, region, puuid]
+    [game_name, tag_line, region, puuid]
   );
   res.status(201).json(result.rows[0] ?? { message: "Already in favorites" });
 });
