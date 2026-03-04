@@ -151,9 +151,15 @@ function RankCard({ entry, label }) {
   );
 }
 
-function PlayerRow({ player, version, isSelf }) {
-  const name = player.riotIdGameName || player.summonerName || "Unknown";
-  const kda  = `${player.kills}/${player.deaths}/${player.assists}`;
+function PlayerRow({ player, version, isSelf, region }) {
+  const name    = player.riotIdGameName || player.summonerName || "Unknown";
+  const tagline = player.riotIdTagline;
+  const kda     = `${player.kills}/${player.deaths}/${player.assists}`;
+
+  const profileHref =
+    !isSelf && name !== "Unknown" && tagline
+      ? `/summoner?region=${region}&name=${encodeURIComponent(name)}&tag=${encodeURIComponent(tagline)}`
+      : null;
 
   return (
     <div className={`flex items-center gap-2 rounded-lg px-2 py-1 ${isSelf ? "bg-blue-500/20 ring-1 ring-blue-500/50" : ""}`}>
@@ -165,9 +171,18 @@ function PlayerRow({ player, version, isSelf }) {
         className="rounded-sm"
         unoptimized
       />
-      <span className={`truncate text-sm w-28 ${isSelf ? "font-semibold text-white" : "text-slate-300"}`}>
-        {name}
-      </span>
+      {profileHref ? (
+        <Link
+          href={profileHref}
+          className="truncate text-sm w-28 text-slate-300 hover:text-blue-400 hover:underline transition-colors"
+        >
+          {name}
+        </Link>
+      ) : (
+        <span className={`truncate text-sm w-28 ${isSelf ? "font-semibold text-white" : "text-slate-300"}`}>
+          {name}
+        </span>
+      )}
       <span className="text-xs text-slate-400 font-mono ml-auto">{kda}</span>
     </div>
   );
@@ -445,7 +460,7 @@ function SummonerContent() {
                         </p>
                         <div className="flex flex-col gap-1">
                           {team1.map((p) => (
-                            <PlayerRow key={p.puuid} player={p} version={summoner.ddragonVersion} isSelf={p.puuid === summoner.puuid} />
+                            <PlayerRow key={p.puuid} player={p} version={summoner.ddragonVersion} isSelf={p.puuid === summoner.puuid} region={region} />
                           ))}
                         </div>
                       </div>
@@ -456,7 +471,7 @@ function SummonerContent() {
                         </p>
                         <div className="flex flex-col gap-1">
                           {team2.map((p) => (
-                            <PlayerRow key={p.puuid} player={p} version={summoner.ddragonVersion} isSelf={p.puuid === summoner.puuid} />
+                            <PlayerRow key={p.puuid} player={p} version={summoner.ddragonVersion} isSelf={p.puuid === summoner.puuid} region={region} />
                           ))}
                         </div>
                       </div>
