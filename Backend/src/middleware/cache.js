@@ -5,17 +5,25 @@ export function cache(ttl = 300) {
   return async (req, res, next) => {
     const key = `cache:${req.originalUrl}`;
 
-    if (redis.isReady) {
-      const cached = await redis.get(key);
-      if (cached) return res.json(JSON.parse(cached));
-
-      // Intercept res.json to store the response in Redis before sending
-      const originalJson = res.json.bind(res);
-      res.json = (data) => {
-        redis.setEx(key, ttl, JSON.stringify(data));
-        return originalJson(data);
-      };
+    if (!redis.isReady) {
+      console.log(`[Cache] SKIP (Redis not connected) ${req.originalUrl}`);
+      return next();
     }
+
+    const cached = await redis.get(key);
+    if (cached) {
+      console.log(`[Cache] HIT  ${req.originalUrl}`);
+      return res.json(JSON.parse(cached));
+    }
+
+    console.log(`[Cache] MISS ${req.originalUrl}`);
+
+    // Intercept res.json to store the response in Redis before sending
+    const originalJson = res.json.bind(res);
+    res.json = (data) => {
+      redis.setEx(key, ttl, JSON.stringify(data));
+      return originalJson(data);
+    };
 
     next();
   };
