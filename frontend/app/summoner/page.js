@@ -199,9 +199,37 @@ function SummonerContent() {
   const [matches,   setMatches]   = useState([]);
   const [loading,   setLoading]   = useState(true);
   const [error,     setError]     = useState(null);
-  const [spellMap,  setSpellMap]  = useState({});
-  const [runeMap,   setRuneMap]   = useState({});
-  const [expanded,  setExpanded]  = useState(new Set());
+  const [spellMap,   setSpellMap]   = useState({});
+  const [runeMap,    setRuneMap]    = useState({});
+  const [expanded,   setExpanded]   = useState(new Set());
+  const [favorites,  setFavorites]  = useState([]);
+  const [favLoading, setFavLoading] = useState(false);
+
+  const isFavorite = summoner && favorites.some((f) => f.puuid === summoner.puuid);
+
+  async function loadFavorites() {
+    const res = await fetch(`${API}/api/favorites`);
+    if (res.ok) setFavorites(await res.json());
+  }
+
+  async function toggleFavorite() {
+    if (!summoner) return;
+    setFavLoading(true);
+    if (isFavorite) {
+      const fav = favorites.find((f) => f.puuid === summoner.puuid);
+      await fetch(`${API}/api/favorites/${fav.id}`, { method: "DELETE" });
+    } else {
+      await fetch(`${API}/api/favorites`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ game_name: summoner.gameName, tag_line: summoner.tagLine, region, puuid: summoner.puuid }),
+      });
+    }
+    await loadFavorites();
+    setFavLoading(false);
+  }
+
+  useEffect(() => { loadFavorites(); }, []);
 
   useEffect(() => {
     if (!region || !name || !tag) return;
@@ -301,6 +329,18 @@ function SummonerContent() {
               />
             )}
             <div className="absolute inset-0 bg-linear-to-b from-black/30 via-black/20 to-black/70" />
+            {/* Favorite star button */}
+            <button
+              onClick={toggleFavorite}
+              disabled={favLoading}
+              className="absolute top-3 right-3 z-10 p-2 rounded-full bg-black/40 hover:bg-black/60 transition-colors disabled:opacity-50"
+              title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+            >
+              <svg className={`w-5 h-5 transition-colors ${isFavorite ? "text-yellow-400 fill-yellow-400" : "text-slate-400 fill-none"}`} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+            </button>
+
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
               {summoner.iconUrl && (
                 <Image
@@ -484,6 +524,34 @@ function SummonerContent() {
             <Link href="/" className="mt-6 inline-block text-sm text-blue-400 hover:underline">
               ← Back to Search
             </Link>
+          </div>
+
+          {/* Favorites sidebar */}
+          <div className="sticky top-6 w-52 shrink-0 flex flex-col gap-2">
+            <h2 className="text-lg font-semibold text-slate-300">Favorites</h2>
+            {favorites.length === 0 ? (
+              <p className="text-sm text-slate-500">No favorites yet.</p>
+            ) : (
+              favorites.map((fav) => (
+                <div key={fav.id} className="flex items-center gap-2 rounded-xl border border-slate-700/50 bg-slate-900/60 px-3 py-2">
+                  <Link
+                    href={`/summoner?region=${fav.region}&name=${encodeURIComponent(fav.game_name)}&tag=${encodeURIComponent(fav.tag_line)}`}
+                    className="flex-1 min-w-0 text-sm text-slate-200 hover:text-blue-400 hover:underline truncate"
+                  >
+                    {fav.game_name}<span className="text-slate-500">#{fav.tag_line}</span>
+                  </Link>
+                  <button
+                    onClick={async () => { await fetch(`${API}/api/favorites/${fav.id}`, { method: "DELETE" }); loadFavorites(); }}
+                    className="shrink-0 text-slate-500 hover:text-red-400 transition-colors"
+                    title="Remove"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
