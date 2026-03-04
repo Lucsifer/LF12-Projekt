@@ -116,7 +116,7 @@ Alle Container laufen im selben Docker Netzwerk (`riotapp_default`) und erreiche
 - Backend → Redis: `redis://redis:6379`
 - Nginx → Backend: `http://backend:4000`
 
-![alt text](image.png)
+![Service Namen](ServiceNames.png)
 
 ### 3.4 Umgebungsvariablen (.env)
 
