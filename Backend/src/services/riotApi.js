@@ -74,7 +74,7 @@ export async function fetchMatchIds(puuid, cluster, count = 20) {
     `https://${cluster}.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=${count}`,
     { headers: { "X-Riot-Token": API_KEY } }
   );
-  console.log("matchIds status:", res.status);  // <-- hinzufügen
+  console.log("matchIds status:", res.status); 
   if (!res.ok) return [];
   return res.json();
 }
