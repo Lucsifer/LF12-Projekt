@@ -1,13 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+
+const API = process.env.NEXT_PUBLIC_API_URL || "";
 
 export default function Home() {
-  const [search, setSearch] = useState("");
-  const [region, setRegion] = useState("euw1");
-  const [error, setError] = useState(null);
+  const [search,    setSearch]    = useState("");
+  const [region,    setRegion]    = useState("euw1");
+  const [error,     setError]     = useState(null);
+  const [favorites, setFavorites] = useState([]);
   const router = useRouter();
+
+  useEffect(() => {
+    fetch(`${API}/api/favorites`)
+      .then((r) => r.ok ? r.json() : [])
+      .then(setFavorites)
+      .catch(() => {});
+  }, []);
 
   function handleSearch() {
     if (!search) return;
@@ -93,6 +104,27 @@ export default function Home() {
 
         </div>
       </div>
+
+      {/* Favorites quick-access */}
+      {favorites.length > 0 && (
+        <div className="mt-6 w-full max-w-lg">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-slate-500">Favorites</p>
+          <div className="flex flex-col gap-2">
+            {favorites.map((fav) => (
+              <Link
+                key={fav.id}
+                href={`/summoner?region=${fav.region}&name=${encodeURIComponent(fav.game_name)}&tag=${encodeURIComponent(fav.tag_line)}`}
+                className="flex items-center justify-between rounded-xl border border-slate-700/50 bg-slate-800/50 px-4 py-2.5 backdrop-blur-sm hover:border-blue-500/50 hover:bg-slate-700/50 transition-colors"
+              >
+                <span className="text-sm text-slate-200">
+                  {fav.game_name}<span className="text-slate-500">#{fav.tag_line}</span>
+                </span>
+                <span className="text-xs text-slate-500 uppercase">{fav.region}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </main>
   );
 }
