@@ -15,8 +15,8 @@ import emblemMaster      from "@/app/assets/ranked-emblem/emblem-master.png";
 import emblemGrandmaster from "@/app/assets/ranked-emblem/emblem-grandmaster.png";
 import emblemChallenger  from "@/app/assets/ranked-emblem/emblem-challenger.png";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-
+const API = process.env.NEXT_PUBLIC_API_URL || "";
+ 
 const tierEmblems = {
   IRON:        emblemIron,
   BRONZE:      emblemBronze,
@@ -179,11 +179,14 @@ function SummonerContent() {
   const name   = searchParams.get("name");
   const tag    = searchParams.get("tag");
 
-  const [summoner, setSummoner] = useState(null);
-  const [ranked,   setRanked]   = useState([]);
-  const [matches,  setMatches]  = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState(null);
+  const [summoner,  setSummoner]  = useState(null);
+  const [ranked,    setRanked]    = useState([]);
+  const [matches,   setMatches]   = useState([]);
+  const [loading,   setLoading]   = useState(true);
+  const [error,     setError]     = useState(null);
+  const [spellMap,  setSpellMap]  = useState({});
+  const [runeMap,   setRuneMap]   = useState({});
+  const [expanded,  setExpanded]  = useState(new Set());
 
   useEffect(() => {
     if (!region || !name || !tag) return;
@@ -199,6 +202,27 @@ function SummonerContent() {
         if (!summonerRes.ok) { setError("Player not found"); setLoading(false); return; }
         const summonerData = await summonerRes.json();
         setSummoner(summonerData);
+
+        const v = summonerData.ddragonVersion;
+        const [spellRes, runesRes] = await Promise.all([
+          fetch(`https://ddragon.leagueoflegends.com/cdn/${v}/data/en_US/summoner.json`),
+          fetch(`https://ddragon.leagueoflegends.com/cdn/${v}/data/en_US/runesReforged.json`),
+        ]);
+        if (spellRes.ok) {
+          const d = await spellRes.json();
+          const m = {};
+          Object.values(d.data).forEach(s => { m[parseInt(s.key)] = s.id; });
+          setSpellMap(m);
+        }
+        if (runesRes.ok) {
+          const d = await runesRes.json();
+          const m = {};
+          d.forEach(style => {
+            m[style.id] = style.icon;
+            style.slots.forEach(slot => slot.runes.forEach(r => { m[r.id] = r.icon; }));
+          });
+          setRuneMap(m);
+        }
 
         const [rankedRes, matchesRes] = await Promise.all([
           fetch(`${API}/api/ranked/${region}/${summonerData.puuid}`),
@@ -307,54 +331,114 @@ function SummonerContent() {
                 const player  = participants.find((p) => p.puuid === summoner.puuid);
                 if (!player) return null;
 
-                const won      = player.win;
-                const team1    = participants.filter((p) => p.teamId === 100);
-                const team2    = participants.filter((p) => p.teamId === 200);
-                const team1Won = team1[0]?.win ?? false;
+                const won           = player.win;
+                const team1         = participants.filter((p) => p.teamId === 100);
+                const team2         = participants.filter((p) => p.teamId === 200);
+                const team1Won      = team1[0]?.win ?? false;
+                const cs            = (player.totalMinionsKilled ?? 0) + (player.neutralMinionsKilled ?? 0);
+                const csPerMin      = (cs / (match.info.gameDuration / 60)).toFixed(1);
+                const kda           = player.deaths === 0 ? "Perfect" : ((player.kills + player.assists) / player.deaths).toFixed(2);
+                const keystoneId    = player.perks?.styles?.[0]?.selections?.[0]?.perk;
+                const secStyleId    = player.perks?.styles?.[1]?.style;
+                const ddragon       = `https://ddragon.leagueoflegends.com/cdn`;
+
+                const isExpanded = expanded.has(match.metadata.matchId);
+                const toggleExpanded = () => setExpanded(prev => {
+                  const next = new Set(prev);
+                  next.has(match.metadata.matchId) ? next.delete(match.metadata.matchId) : next.add(match.metadata.matchId);
+                  return next;
+                });
 
                 return (
                   <div
                     key={match.metadata.matchId}
-                    className={`rounded-2xl border backdrop-blur-sm overflow-hidden ${
-                      won ? "border-green-700/50" : "border-red-700/50"
-                    }`}
+                    className={`rounded-2xl border overflow-hidden ${won ? "border-green-700/50" : "border-red-700/50"}`}
                   >
-                    <div className={`flex items-center justify-between px-5 py-3 ${
-                      won ? "bg-green-900/30" : "bg-red-900/30"
-                    }`}>
-                      <div className="flex items-center gap-4">
-                        <Image
-                          src={`https://ddragon.leagueoflegends.com/cdn/${summoner.ddragonVersion}/img/champion/${player.championName}.png`}
-                          alt={player.championName}
-                          width={40}
-                          height={40}
-                          className="rounded-lg"
-                          unoptimized
-                        />
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className={`text-sm font-bold ${won ? "text-green-400" : "text-red-400"}`}>
-                              {won ? "WIN" : "LOSS"}
-                            </span>
-                            <span className="text-slate-400 text-sm">{formatGameMode(match.info.gameMode)}</span>
+                    {/* Header row */}
+                    <div className="flex items-stretch">
+
+                      {/* WIN/LOSS box */}
+                      <div className={`flex items-center justify-center w-14 shrink-0 ${won ? "bg-green-800/50" : "bg-red-800/50"}`}>
+                        <span className={`text-xs font-bold tracking-wide [writing-mode:vertical-rl] rotate-180 ${won ? "text-green-300" : "text-red-300"}`}>
+                          {won ? "WIN" : "LOSS"}
+                        </span>
+                      </div>
+
+                      {/* Main content */}
+                      <div className={`flex-1 flex items-center gap-3 px-4 py-3 ${won ? "bg-green-900/20" : "bg-red-900/20"}`}>
+
+                        {/* Champion + level */}
+                        <div className="relative shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={`${ddragon}/${summoner.ddragonVersion}/img/champion/${player.championName}.png`} alt={player.championName} className="w-12 h-12 rounded-lg" />
+                          <span className="absolute -bottom-1 -right-1 text-[10px] font-bold bg-slate-900 text-white px-1 rounded leading-tight">{player.champLevel}</span>
+                        </div>
+
+                        {/* Summoner spells */}
+                        <div className="flex flex-col gap-0.5 shrink-0">
+                          {[player.summoner1Id, player.summoner2Id].map((sid, i) =>
+                            spellMap[sid] ? (
+                              /* eslint-disable-next-line @next/next/no-img-element */
+                              <img key={i} src={`${ddragon}/${summoner.ddragonVersion}/img/spell/${spellMap[sid]}.png`} alt="" className="w-[22px] h-[22px] rounded" />
+                            ) : <div key={i} className="w-[22px] h-[22px] rounded bg-slate-700" />
+                          )}
+                        </div>
+
+                        {/* Runes */}
+                        <div className="flex flex-col gap-0.5 shrink-0">
+                          {[keystoneId, secStyleId].map((id, i) =>
+                            id && runeMap[id] ? (
+                              /* eslint-disable-next-line @next/next/no-img-element */
+                              <img key={i} src={`${ddragon}/img/${runeMap[id]}`} alt="" className="w-[22px] h-[22px] rounded-full bg-slate-800 p-0.5" />
+                            ) : <div key={i} className="w-[22px] h-[22px] rounded-full bg-slate-700" />
+                          )}
+                        </div>
+
+                        {/* Stats + Items together */}
+                        <div className="flex-1 flex items-center gap-4 min-w-0">
+                          <div className="min-w-0">
+                            <p className="text-xs text-slate-400 mb-0.5">{formatGameMode(match.info.gameMode)} · {formatDuration(match.info.gameDuration)}</p>
+                            <p className="font-mono font-bold text-lg leading-tight">
+                              {player.kills}<span className="text-slate-500"> / </span><span className="text-red-400">{player.deaths}</span><span className="text-slate-500"> / </span>{player.assists}
+                            </p>
+                            <p className="text-sm text-slate-300">{kda} KDA</p>
+                            <p className="text-xs text-slate-400">{cs} CS ({csPerMin}) · {player.visionScore ?? 0} Vision</p>
                           </div>
-                          <p className="text-white font-semibold">{player.championName}</p>
+
+                          {/* Items: 3×2 + trinket */}
+                          <div className="flex items-center gap-1.5 shrink-0 ml-auto">
+                            <div className="grid grid-cols-3 gap-1">
+                              {[0,1,2,3,4,5].map(i => {
+                                const itemId = player[`item${i}`];
+                                return itemId ? (
+                                  /* eslint-disable-next-line @next/next/no-img-element */
+                                  <img key={i} src={`${ddragon}/${summoner.ddragonVersion}/img/item/${itemId}.png`} alt="" className="w-7 h-7 rounded" />
+                                ) : <div key={i} className="w-7 h-7 rounded bg-slate-700/50" />;
+                              })}
+                            </div>
+                            <div className="self-start">
+                              {player.item6
+                                ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={`${ddragon}/${summoner.ddragonVersion}/img/item/${player.item6}.png`} alt="" className="w-7 h-7 rounded" />
+                                : <div className="w-7 h-7 rounded bg-slate-700/50" />
+                              }
+                            </div>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="text-right">
-                        <p className="font-mono font-semibold text-lg">
-                          {player.kills}
-                          <span className="text-slate-500"> / </span>
-                          <span className="text-red-400">{player.deaths}</span>
-                          <span className="text-slate-500"> / </span>
-                          {player.assists}
-                        </p>
-                        <p className="text-xs text-slate-400">{formatDuration(match.info.gameDuration)}</p>
-                      </div>
+                      {/* Dropdown button */}
+                      <button
+                        onClick={toggleExpanded}
+                        className={`flex items-center justify-center w-10 shrink-0 border-l border-slate-700/40 transition-colors ${won ? "bg-green-900/20 hover:bg-green-800/30" : "bg-red-900/20 hover:bg-red-800/30"}`}
+                      >
+                        <svg className={`w-4 h-4 text-slate-400 transition-transform ${isExpanded ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-px bg-slate-700/30 px-4 py-3">
+                    {/* Collapsible team scoreboard */}
+                    {isExpanded && <div className="grid grid-cols-2 gap-px bg-slate-700/30 px-4 py-3">
                       <div className="pr-3">
                         <p className={`text-xs font-semibold mb-2 ${team1Won ? "text-green-400" : "text-red-400"}`}>
                           {team1Won ? "Victory" : "Defeat"}
@@ -376,7 +460,7 @@ function SummonerContent() {
                           ))}
                         </div>
                       </div>
-                    </div>
+                    </div>}
                   </div>
                 );
               })}
