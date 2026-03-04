@@ -43,6 +43,8 @@ services:
     volumes:
       - uptime_kuma_data:/app/data
     restart: always
+    networks:
+      - default
 
 volumes:
   postgres_data:
