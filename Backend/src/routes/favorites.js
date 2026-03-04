@@ -9,15 +9,15 @@ router.get("/", async (_req, res) => {
   res.json(result.rows);
 });
 
-// POST /api/favorites  { game_name, tag_line, region, puuid }
+// POST /api/favorites  { game_name, tag_line, region, puuid, icon_url }
 router.post("/", async (req, res) => {
-  const { game_name, tag_line, region, puuid } = req.body;
+  const { game_name, tag_line, region, puuid, icon_url } = req.body;
   const result = await db.query(
-    `INSERT INTO favorites (game_name, tag_line, region, puuid)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO favorites (game_name, tag_line, region, puuid, icon_url)
+     VALUES ($1, $2, $3, $4, $5)
      ON CONFLICT (puuid) DO NOTHING
      RETURNING *`,
-    [game_name, tag_line, region, puuid]
+    [game_name, tag_line, region, puuid, icon_url ?? null]
   );
   res.status(201).json(result.rows[0] ?? { message: "Already in favorites" });
 });
