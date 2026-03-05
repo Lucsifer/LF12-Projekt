@@ -4,7 +4,7 @@
 ### Prompt 1
 Wir sind eine 4er Gruppe die im Rahmen der Ausbildung zum Fachinformatiker im LF12 Projektmanagement ein Praxisprojekt durchführen sollen mit Lasten, Pflichtenheft und allem drum und dran. Wir tuen uns aber gerade schwer ein geeignetes Thema zu finden. Unsere Gruppe besteht aus einem Entwickler, einem Projektleiter und zwei Systemintegratoren. Die Interessen von uns sind: Gameentwicklung, Webanwendungen, Automatisierung, Netzwerke, Infrastruktur. Das ist nur eine Gedankenstütze und wir haben auch nur eine Woche Zeit dafür. Kannst du uns helfen ein Thema zu finden?
 
-#### Antwort auf Prompt 1:
+#### Zusammengefasste Antwort auf Prompt 1:
 
 Uns wurden 3 verschiedene Projekte vorgeschlagen. Eine der Ideen war es eine TODO Webapp bereitzustellen. Unsere Gruppe fand das Grundprinzip eine Webapp in einem Projekt gemeinsam zu entwickeln/bereitzustellen, aber mit einer anderen Hauptfunktion. Im Endeffekt haben wir uns dafür entschieden eine Webapp zu bauen die Statistiken über das Videospiel "League of Legends" bereitstellt.
 
@@ -12,7 +12,7 @@ Uns wurden 3 verschiedene Projekte vorgeschlagen. Eine der Ideen war es eine TOD
 
 Ich habe bisher noch nie eine Docker Compose geschrieben. Kannst du mir dabei helfen.
 
-#### Antwort auf Prompt 2:
+#### Zusammengefasste Antwort auf Prompt 2:
 
 Antwort war eine kleine Beispiel Docker-compose. 
 Danach habe ich nochmal ein Video geschaut: https://www.youtube.com/watch?v=DM65_JyGxCo
@@ -21,7 +21,7 @@ Danach habe ich nochmal ein Video geschaut: https://www.youtube.com/watch?v=DM65
 
 Kannst du mir bitte Github Actions erklären. Ich habe noch nie damit gearbeitet
 
-#### Antwort auf Prompt 3:
+#### Zusammengefasste Antwort auf Prompt 3:
 
 Antwort war eine Beispiel deploy.yml mit einer Grundstruktur zum Code auschecken. 
 Danach Video angeschaut: https://www.youtube.com/watch?v=R8_veQiYBjI
@@ -54,7 +54,7 @@ http {
     }
 }
 
-#### Antwort auf Prompt 4:
+#### Zusammengefasste Antwort auf Prompt 4:
 
 Nachdem ich dieses Video geschaut habe: https://www.youtube.com/watch?v=q8OleYuqntY, um die erste deploy.yml zu schreiben, hat Claude die Datei so angepasst:
 
