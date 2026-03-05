@@ -350,3 +350,125 @@ docker compose exec redis redis-cli monitor
 docker compose down
 docker compose up -d
 ```
+
+# 5. Server
+
+Für das Projekt wurde ein CX23 Server von Hetzner genutzt
+Die Spezifikationen dieses Servers belaufen sich auf 2vCPUs mit amd64 Architektur und 4GB Arbeitsspeicher, sowie 32GB Festplattenspeicher
+Auf dem Server läuft Ubuntu Server 24.04.03LTS
+
+# 6. Docker installation
+
+Die einzelnen Services sollen in Container laufen um eine abkapselung der Services zu ermöglichen.
+Für die Containerisierung wird Docker verwendet.
+
+(https://docs.docker.com/engine/install/ubuntu/)
+
+Docker **apt repository** einrichten
+```bash
+# Add Docker's official GPG key:
+sudo apt update
+sudo apt install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+
+sudo apt update
+```
+
+Docker Pakete installieren
+```bash
+sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-compose
+```
+
+# 7. Gruppen und Benutzer
+## 7.1. Gruppen
+Die Mitwirkenden des Projekts sollen einer Extra Gruppe zugeordnet werden, um Projektdaten zu separieren.
+
+```bash
+# Group for Project
+sudo groupadd project_devs
+
+# Folder for Projekt
+sudo mkdir -p /srv/league-project
+sudo chown :project_devs /srv/league-project
+
+# Owner can Read,Write,Execute
+# Group can Read,Write,Execute
+# Others can Read and Execute
+# The 2 before 775 is making the setgid-bit ensuring every new file is automatically belonging to the project_devs group
+sudo chmod 2775 /srv/league-project
+```
+
+## 7.2. User
+Jeder Mitwirkende hat einen eigenen Nutzer.
+```bash
+# Create the user
+sudo adduser lucsifer
+
+# Add them to the shared project group
+sudo usermod -aG project_devs lucsifer
+
+# Add them to the docker group so they don't need 'sudo' for docker commands
+sudo usermod -aG docker lucsifer
+```
+
+### 7.2.1. Rollenbasierte Policies für den Entwickler
+```bash
+sudo visudo
+# Allow Developer to restart the reverse proxy
+spargel1337 ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart nginx
+```
+# 8. NginX Reverse Proxy
+NginX auf dem Host installieren: `apt install nginx`
+## 8.1. Selbst signiertes Zertifikat erstellen
+```bash
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \ -keyout /etc/ssl/private/nginx-selfsigned.key \ -out /etc/ssl/certs/nginx-selfsigned.crt
+```
+```txt
+key:value
+Country Name:DE
+State or Province:Saxony
+Locality:Dresden
+Organization:LF-Droelf
+Organization unit:
+Common Name:<server-ip>
+Email:
+```
+
+## 8.2. NginX Pfad-Basiertes routing verwenden
+
+```bash
+# Edit Config
+sudo vim /etc/nginx/sites-available/league-project
+```
+
+!# Konfiguration Pasten
+
+```bash
+# Enable Configuration
+sudo ln -s /etc/nginx/sites-available/league-project /etc/nginx/sites-enabled/
+
+# Check syntax
+sudo nginx -t
+# Wanted Output: "nginx: configuration file /etc/nginx/nginx.conf test is successful"
+
+# Restart nginx
+sudo systemctl restart nginx.service
+
+# "Unload" default config file
+sudo rm /etc/nginx/sites-available/default
+sudo nginx -t # Test is successfull
+```
+
+# 9. Portainer
+(https://docs.portainer.io/start/install-ce/server/docker/linux#docker-compose)
