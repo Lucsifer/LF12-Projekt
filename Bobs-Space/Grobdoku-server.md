@@ -246,3 +246,31 @@ sudo certbot --nginx -d lukulus.eu -d www.lukulus.eu
 
 sudo certbot install --cert-name www.lukulus.eu
 ```
+
+## Uptime Kuma auf eigene Subdomain
+
+Uptime-Kuma erwartet eine eigene Subdomain (Why ever)
+
+Es wurde eine Subdomain beim Domainanbieter angelegt.
+
+### Nginx Konfiguration für Uptime-Kuma anlegen
+
+```bash
+sudo vim /etc/nginx/sites-available/monito
+```
+
+!# Konfig einfügen
+
+```bash
+sudo nginx -T
+```
+
+```bash
+# Certificate for new subdomain and renewal etc.
+sudo certbot --nginx -d lukulus.eu -d monitor.lukulus.eu -d www.lukulus.eu
+
+# REstart nginx
+sudo systemctl restart nginx.service
+```
+
+Uptime Kuma muss noch darauf eingestellt werden, dass es auf der Subdomain läuft.
