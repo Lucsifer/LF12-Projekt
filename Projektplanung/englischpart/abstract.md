@@ -1,4 +1,4 @@
-# Abstraced League of legends Summoner Webapp
+# Abstract League of legends Summoner Webapp
 
 Online games generate large volumes of real-time data. Players increasingly rely on external tools to access accurate statistics. Existing League of Legends platforms often lack customization, transparency or modern infrastructure. To address these limitations, we developed a personalized Summoner Stats Webapp. While creating a scalable and repeatable architecture for upcoming IT projects, we also explored the capabilities of the Riot Games API. The goal was a secure and maintainable system that delivers reliable data through a clean and intuitive interface. This demonstrates how software engineering may be used in a game setting.
 
