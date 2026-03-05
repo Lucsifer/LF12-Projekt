@@ -12,7 +12,7 @@ Das Projekt wird im Unterricht des Lernfeldes 12 geplant und durchgeführt. Daf�
 | Lucas Kloss | Projektleiter |
 | Luis Rennert | Systemintegrator |
 | Robert Frost | Systemintegrator |
-| Justin Miltner | Anwendungsentwickler |
+| Justin Mildner | Anwendungsentwickler |
 
 ### Organisationsform
 Es wird eine reine Projektorganisation eingesetzt. Trotz des kleinen Projektumfangs steht die Autonomie des Teams im Vordergrund. Verantwortlichkeiten können so klar und schnell zugeordnet und Arbeitsabläufe flexibel gestaltet werden.
