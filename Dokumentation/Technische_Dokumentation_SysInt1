@@ -1,0 +1,355 @@
+# Server
+
+Die Server spezifikationen beziehen sich auf 2vCPUs und 4GB Arbeitsspeicher auf einem Hetzner CX23
+
+Pfad für alle Mitglieder: /srv/league-project
+Pfad für Docker Compose-files: /srv/league-project/compose-files
+
+## Docker installation
+
+(https://docs.docker.com/engine/install/ubuntu/)
+
+Docker apt repo einrichten
+
+```bash
+# Add Docker's official GPG key:
+sudo apt update
+sudo apt install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+
+sudo apt update
+```
+
+Docker pakete installieren
+
+```bash
+sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-compose
+```
+
+## Gruppe und Geteilter Ordner
+
+Der Gruppenordner ist gedacht für alle entwicklungen und dass jeder zugriff auf die Projektdaten hat
+
+```bash
+# Group for Project
+sudo groupadd project_devs
+
+# Folder for Projekt
+sudo mkdir -p /srv/league-project
+sudo chown :project_devs /srv/league-project
+
+# Owner can Read,Write,Execute
+# Group can Read,Write,Execute
+# Others can Read and Execute
+# The 2 before 775 is making the setgid-bit ensuring every new file is automatically belonging to the project_devs group
+sudo chmod 2775 /srv/league-project
+```
+
+## User erstellen
+
+Die drei Nutzer anlegen, wobei die jeweiligen nutzer bestehen
+lukulus, iszshara, spargel1337, lucsifer
+
+```bash
+# Create the user
+sudo adduser lucsifer
+
+# Add them to the shared project group
+sudo usermod -aG project_devs lucsifer
+
+# Add them to the docker group so they don't need 'sudo' for docker commands
+sudo usermod -aG docker lucsifer
+```
+
+## Rollenbasierte Policies für den Entwickler
+
+```bash
+sudo visudo
+# Allow Developer to restart the reverse proxy
+spargel1337 ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart nginx
+```
+
+## Nginx Reverse Proxy
+
+1. Nginx auf dem Host installieren
+`sudo apt install nginx`
+nach aufrufen der Serverip:80 sollte der Nginx willkommens-screen gezeigt werden.
+
+2. Selbst signiertes Zertifikat erstellen.
+`sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+-keyout /etc/ssl/private/nginx-selfsigned.key \
+-out /etc/ssl/certs/nginx-selfsigned.crt`
+
+```txt
+key:value
+Country Name:DE
+State or Province:Saxony
+Locality:Dresden
+Organization:LF-Droelf
+Organization unit:
+Common Name:<server-ip>
+Email:
+```
+### Nginx für Pfad-Basiertes routen verwenden
+
+```bash
+# Edit Config
+sudo vim /etc/nginx/sites-available/league-project
+```
+
+```config
+server {
+	listen 80;
+	listen [::]:80;
+	server_name _;
+	return 301 https://$host$request_uri; # Redirect to HTTPS
+}
+
+server {
+	listen 443 ssl;
+	listen [::]:443 ssl;
+	server_name <domain> www.<domain> _;
+    ssl_certificate /etc/letsencrypt/live/www.<domain>/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/www.<domain>/privkey.pem; # managed by Certbot
+
+	# --- ROUTE 1: The Main App ---
+	location / {
+		proxy_pass http://127.0.0.1:81;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+	}
+
+	# --- ROUTE 2: Monitoring (uptime-kuma) ---
+	location /monitor/ {
+		proxy_pass http://127.0.0.1:6969/;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+	}
+
+	# --- ROUTE 3: Portainer ---
+	location /portainer/ {
+		proxy_pass https://127.0.0.1:9443/;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+	}
+
+
+}
+```
+
+```bash
+# Enable Configuration
+sudo ln -s /etc/nginx/sites-available/league-project /etc/nginx/sites-enabled/
+# Check syntax
+sudo nginx -t
+# Restart nginx
+sudo systemctl restart nginx.service
+# "Unload" default config file
+sudo rm /etc/nginx/sites-available/default
+sudo nginx -t # Test is successfull
+```
+
+## Portainer installation
+
+https://docs.portainer.io/start/install-ce/server/docker/linux#docker-compose
+
+Compose dateipfad = /srv/league-project/compose-file/portainer-compose.yaml
+
+```bash
+# Deploy portainer
+docker compose -f portainer-compose.yaml up -d
+```
+
+## GitHub pipeline
+
+### User für Workflow erstellen
+
+```bash
+# Create the user
+sudo adduser github-deployer --disabled-password --gecos ""
+
+# Add them to the docker group so they can run containers
+sudo usermod -aG docker github-deployer
+
+# Add them to the project group so they can edit the files
+sudo usermod -aG project_devs github-deployer
+```
+
+### Generate SSH key for Github
+
+```bash
+# Switch to Github user
+sudo su - github-deployer
+
+# Generate key pair for ssh
+ssh-keygen -t ed25519 -C "github-actions-deploy"
+```
+
+Authorize the key next
+
+```bash
+mkdir ~/.ssh
+cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+```
+
+### GitHub secrets konfigurieren
+
+auf Github im Repo
+Repo > Settings > Secrets and variables > Actions > New repository secrets
+
+|Name|Value|
+|---|---|
+|SSH_PRIVATE_KEY|<SSH Private key>|
+|SSH_HOST|<Server IP>|
+|SSH_USER|github-deployer|
+
+### Deployment Script
+
+Das Deployment Script ist für den Dev gedacht. Dieser packt ihn in `.github/workflows/deploy.yml``
+
+```yml
+- name: Deploy to Hetzner
+  uses: appleboy/ssh-action@master
+  with:
+    host: ${{ secrets.SSH_HOST }}
+    username: ${{ secrets.SSH_USER }}
+    key: ${{ secrets.SSH_PRIVATE_KEY }}
+    script: |
+      cd /srv/league-project
+      git pull origin main
+      docker compose up -d --build
+```
+
+Das Deployment Script wird von iszshara erweitert für die Restlichen funktionalitäten
+
+## Lets Encrypt
+### 1. Install Certbot
+```bash
+sudo apt install certbot python3-certbot-nginx
+```
+
+### 2. Run Certbot nginx
+
+NginX sagen dass auf einer spezifischen Domain hören soll.
+
+```bash
+sudo nano /etc/nginx/sites-available/<domain>
+```
+
+```
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name <domain> www.<domain>;
+
+    root /var/www/html;
+    index index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+```
+
+```bash
+# Create a shortcut to 'enable' the site
+sudo ln -s /etc/nginx/sites-available/<domain> /etc/nginx/sites-enabled/
+
+# Test the config for syntax errors
+sudo nginx -t
+
+# If syntax is ok restart nginx
+sudo systemctl restart nginx
+```
+
+
+```bash
+sudo certbot --nginx -d <domain> -d www.<domain>
+
+sudo certbot install --cert-name www.<domain>
+```
+
+## Uptime Kuma auf eigene Subdomain
+
+Uptime-Kuma erwartet eine eigene Subdomain (Why ever)
+
+Es wurde eine Subdomain beim Domainanbieter angelegt.
+
+### Nginx Konfiguration für Uptime-Kuma anlegen
+
+```bash
+sudo vim /etc/nginx/sites-available/monitor
+```
+
+```config
+server {
+  # If you don't have one yet, you can set up a subdomain with your domain registrar (e.g. Namecheap)
+  # Just create a new host record with type='A Record', host='<subdomain>', value='<ip_address>'.
+  
+  server_name monitor.<domain>;
+
+  location / {
+    proxy_set_header   X-Real-IP $remote_addr;
+    proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header   Host $host;
+    proxy_pass         http://localhost:6969/;
+    proxy_http_version 1.1;
+    proxy_set_header   Upgrade $http_upgrade;
+    proxy_set_header   Connection "upgrade";
+  }
+
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/www.<domain>/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/www.<domain>/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+
+# Once that's completed, you can run
+# sudo apt install python3-certbot-nginx
+# sudo certbot --nginx -d your_domain -d your_subdomain.your_domain -d www.your_domain
+# And Certbot will auto-populate this nginx .conf file for you, while also renewing your certificates automatically in the future.
+server {
+    if ($host = monitor.<domain>) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+  
+  server_name monitor.<domain>;
+    listen 80;
+    return 404; # managed by Certbot
+
+
+}
+```
+
+```bash
+sudo nginx -T
+```
+
+```bash
+# Certificate for new subdomain and renewal etc.
+sudo certbot --nginx -d <domain> -d monitor.<domain> -d www.<domain>
+
+# REstart nginx
+sudo systemctl restart nginx.service
+```
+
+Uptime Kuma muss noch darauf eingestellt werden, dass es auf der Subdomain läuft.
