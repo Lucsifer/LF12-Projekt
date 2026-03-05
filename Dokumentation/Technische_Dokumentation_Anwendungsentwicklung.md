@@ -11,7 +11,7 @@
 
 Im Rahmen von LF12 wurde eine Webanwendung entwickelt, die Spielerdaten über die Riot Games API abruft und darstellt. Die Infrastruktur wurde vollständig containerisiert und über eine automatisierte CI/CD Pipeline deployed.
 
-Diese Dokumentation beschreibt die Aufgaben und Konfigurationen des Systemintegrators 2 (Luis Rennert), bestehend aus:
+Diese Dokumentation beschreibt die Aufgaben und Konfigurationen des Anwendungsentwicklers (Justin), bestehend aus:
 
 - Techstack
 - Projektarchitektur
