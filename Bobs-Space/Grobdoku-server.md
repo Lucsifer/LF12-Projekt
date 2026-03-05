@@ -2,8 +2,6 @@
 
 Die Server spezifikationen beziehen sich auf 2vCPUs und 4GB Arbeitsspeicher auf einem Hetzner CX23
 
-IP: 46.225.218.94
-
 Pfad für alle Mitglieder: /srv/league-project
 Pfad für Docker Compose-files: /srv/league-project/compose-files
 
@@ -110,7 +108,45 @@ Email:
 sudo vim /etc/nginx/sites-available/league-project
 ```
 
-!# Konfiguration pasten
+```config
+server {
+	listen 80;
+	listen [::]:80;
+	server_name _;
+	return 301 https://$host$request_uri; # Redirect to HTTPS
+}
+
+server {
+	listen 443 ssl;
+	listen [::]:443 ssl;
+	server_name <domain> www.<domain> _;
+    ssl_certificate /etc/letsencrypt/live/www.<domain>/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/www.<domain>/privkey.pem; # managed by Certbot
+
+	# --- ROUTE 1: The Main App ---
+	location / {
+		proxy_pass http://127.0.0.1:81;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+	}
+
+	# --- ROUTE 2: Monitoring (uptime-kuma) ---
+	location /monitor/ {
+		proxy_pass http://127.0.0.1:6969/;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+	}
+
+	# --- ROUTE 3: Portainer ---
+	location /portainer/ {
+		proxy_pass https://127.0.0.1:9443/;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+	}
+
+
+}
+```
 
 ```bash
 # Enable Configuration
@@ -210,7 +246,7 @@ sudo apt install certbot python3-certbot-nginx
 NginX sagen dass auf einer spezifischen Domain hören soll.
 
 ```bash
-sudo nano /etc/nginx/sites-available/lukulus.eu
+sudo nano /etc/nginx/sites-available/<domain>
 ```
 
 ```
@@ -218,7 +254,7 @@ server {
     listen 80;
     listen [::]:80;
 
-    server_name lukulus.eu www.lukulus.eu;
+    server_name <domain> www.<domain>;
 
     root /var/www/html;
     index index.html index.htm;
@@ -231,7 +267,7 @@ server {
 
 ```bash
 # Create a shortcut to 'enable' the site
-sudo ln -s /etc/nginx/sites-available/lukulus.eu /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/<domain> /etc/nginx/sites-enabled/
 
 # Test the config for syntax errors
 sudo nginx -t
@@ -242,7 +278,78 @@ sudo systemctl restart nginx
 
 
 ```bash
-sudo certbot --nginx -d lukulus.eu -d www.lukulus.eu
+sudo certbot --nginx -d <domain> -d www.<domain>
 
-sudo certbot install --cert-name www.lukulus.eu
+sudo certbot install --cert-name www.<domain>
 ```
+
+## Uptime Kuma auf eigene Subdomain
+
+Uptime-Kuma erwartet eine eigene Subdomain (Why ever)
+
+Es wurde eine Subdomain beim Domainanbieter angelegt.
+
+### Nginx Konfiguration für Uptime-Kuma anlegen
+
+```bash
+sudo vim /etc/nginx/sites-available/monitor
+```
+
+```config
+server {
+  # If you don't have one yet, you can set up a subdomain with your domain registrar (e.g. Namecheap)
+  # Just create a new host record with type='A Record', host='<subdomain>', value='<ip_address>'.
+  
+  server_name monitor.<domain>;
+
+  location / {
+    proxy_set_header   X-Real-IP $remote_addr;
+    proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header   Host $host;
+    proxy_pass         http://localhost:6969/;
+    proxy_http_version 1.1;
+    proxy_set_header   Upgrade $http_upgrade;
+    proxy_set_header   Connection "upgrade";
+  }
+
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/www.<domain>/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/www.<domain>/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+
+# Once that's completed, you can run
+# sudo apt install python3-certbot-nginx
+# sudo certbot --nginx -d your_domain -d your_subdomain.your_domain -d www.your_domain
+# And Certbot will auto-populate this nginx .conf file for you, while also renewing your certificates automatically in the future.
+server {
+    if ($host = monitor.<domain>) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+  
+  server_name monitor.<domain>;
+    listen 80;
+    return 404; # managed by Certbot
+
+
+}
+```
+
+```bash
+sudo nginx -T
+```
+
+```bash
+# Certificate for new subdomain and renewal etc.
+sudo certbot --nginx -d <domain> -d monitor.<domain> -d www.<domain>
+
+# REstart nginx
+sudo systemctl restart nginx.service
+```
+
+Uptime Kuma muss noch darauf eingestellt werden, dass es auf der Subdomain läuft.
