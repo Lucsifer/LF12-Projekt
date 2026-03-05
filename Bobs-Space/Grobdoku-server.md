@@ -198,3 +198,51 @@ Das Deployment Script ist für den Dev gedacht. Dieser packt ihn in `.github/wor
 ```
 
 Das Deployment Script wird von iszshara erweitert für die Restlichen funktionalitäten
+
+## Lets Encrypt
+### 1. Install Certbot
+```bash
+sudo apt install certbot python3-certbot-nginx
+```
+
+### 2. Run Certbot nginx
+
+NginX sagen dass auf einer spezifischen Domain hören soll.
+
+```bash
+sudo nano /etc/nginx/sites-available/lukulus.eu
+```
+
+```
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name lukulus.eu www.lukulus.eu;
+
+    root /var/www/html;
+    index index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+```
+
+```bash
+# Create a shortcut to 'enable' the site
+sudo ln -s /etc/nginx/sites-available/lukulus.eu /etc/nginx/sites-enabled/
+
+# Test the config for syntax errors
+sudo nginx -t
+
+# If syntax is ok restart nginx
+sudo systemctl restart nginx
+```
+
+
+```bash
+sudo certbot --nginx -d lukulus.eu -d www.lukulus.eu
+
+sudo certbot install --cert-name www.lukulus.eu
+```
