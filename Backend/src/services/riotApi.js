@@ -10,7 +10,7 @@ export const regionToCluster = {
 };
 
 const championNameFixes = {
-  FiddleSticks: "Fiddlesticks",
+  FiddleSticks: "FiddleSticks",
 };
 
 export function normalizeChampionName(name) {
